@@ -9,8 +9,6 @@ The app allows users to:
 - View balances and send payment reminders.  
 - Keep everything organized in one place.  
 
-Designed to be user-friendly and versatile, GatorSplit is the perfect tool to simplify managing shared finances for everyone, everywhere.  
-
 ## Project Members  
 1. Varun Rudrangi - Frontend 
 2. Chandana Nukala - Frontend 
