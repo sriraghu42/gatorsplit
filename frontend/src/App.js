@@ -35,10 +35,7 @@ import { AuthProvider } from './context/AuthContext'
 import Homepage from './views/Homepage'
 import Registerpage from './views/Registerpage'
 import Loginpage from './views/Loginpage'
-import Database from './views/Database';
 import Navbar from './views/navbar';
-import ForgotPasswordPage from './views/ForgotPassword';
-import { Dashboard } from '@mui/icons-material';
 import DashboardPage from './views/Dashboard';
 
 
@@ -49,11 +46,9 @@ function App() {
       <AuthProvider>
         < Navbar/>
         <Switch>
-          <PrivateRoute component={Database} path="/database" exact />
      
           <Route component={Loginpage} path="/login" />
           <Route component={Registerpage} path="/register" exact />
-          <Route component={ForgotPasswordPage} path="/resetpassword" exact />
           <Route component={Homepage} path="/" exact />
           <PrivateRoute component={DashboardPage} path="/dashboard" exact />
         </Switch>
