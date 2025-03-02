@@ -3,8 +3,10 @@ package database
 import (
 	"fmt"
 	"go-auth-app/models"
+	"log"
 
 	"gorm.io/driver/postgres"
+	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 )
 
@@ -33,4 +35,26 @@ func ConnectDatabase() {
 		&models.Expense{},
 		&models.ExpenseParticipant{},
 	)
+}
+
+// SetupMockDB initializes an in-memory SQLite database for testing
+func SetupMockDB() {
+	mockDB, err := gorm.Open(sqlite.Open(":memory:"), &gorm.Config{})
+	if err != nil {
+		log.Fatalf("❌ Failed to initialize mock database: %v", err)
+	}
+
+	// Migrate all models
+	mockDB.AutoMigrate(
+		&models.User{},
+		&models.Group{},
+		&models.GroupUser{},
+		&models.Thread{},
+		&models.Expense{},
+		&models.ExpenseParticipant{},
+	)
+
+	// 🔹 Override the global `database.DB` instance
+	DB = mockDB
+	log.Println("✅ Mock DB initialized")
 }
