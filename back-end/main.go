@@ -63,6 +63,7 @@ func main() {
 
 	// Expense Management
 	protected.HandleFunc("/expenses", handlers.CreateExpense).Methods("POST", "OPTIONS")
+	protected.HandleFunc("/personal-expense", handlers.CreatePersonalExpense).Methods("POST", "OPTIONS")
 	protected.HandleFunc("/dashboard/balances/{user_id}", handlers.GetDashboardBalances).Methods("GET", "OPTIONS")
 	protected.HandleFunc("/expenses/{expense_id}/settle", handlers.SettleExpense).Methods("POST", "OPTIONS")
 	protected.HandleFunc("/expenses/{expense_id}", handlers.DeleteExpense).Methods("DELETE", "OPTIONS")
