@@ -18,6 +18,7 @@ import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import DoneAllIcon from "@mui/icons-material/DoneAll";
 import PersonIcon from '@mui/icons-material/Person';
 import CreateGroup from "./groups/CreateGroup";
+import { useHistory } from "react-router-dom";  
 
 function DashboardPage() {
   const [groups, setGroups] = useState([]);
@@ -25,6 +26,7 @@ function DashboardPage() {
   const [balances, setBalances] = useState(null);
   const [loading, setLoading] = useState(true);
   const [openModal, setOpenModal] = useState(false);
+  const history = useHistory();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -42,9 +44,6 @@ function DashboardPage() {
         const usersData = await usersResponse.json();        
         const balancesData = []
         
-        
-
-        
         setUsers(usersData || []); // Set users from the API response
         const  balanceResponse=[]
         setBalances(balancesData || null);
@@ -56,9 +55,24 @@ function DashboardPage() {
         setLoading(false);
       }
     };
+    fetchUsersAndBalances();
     fetchGroups();
     fetchData();
   }, []);
+
+  const fetchUsersAndBalances = async() => {
+    try {
+      const response = await fetch("", {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${JSON.parse(localStorage.getItem("authTokens"))}`
+        }
+      })
+    } catch(err) {
+      console.error("Error fetching Users data and Balances:", err);
+    } 
+  }
 
   const fetchGroups = async () => {
     try {
@@ -78,6 +92,10 @@ function DashboardPage() {
       setLoading(false);
     }
   }
+
+  const handleSelectGroup = (id) => {
+    history.push(`/groups/${id}`);
+  };
 
 
   if (loading) {
@@ -183,7 +201,16 @@ function DashboardPage() {
                 {groups.length > 0 ? (
                   groups.map((group, index) => (
                     <ListItem key={index} divider>
-                      <ListItemText primary={group.name} />
+                      <ListItemText primary={group.name}
+                        key={group.id} 
+                        button
+                        onClick={() => handleSelectGroup(group.id)}
+                        sx={{
+                            "&:hover": { backgroundColor: "#e3f2fd" },
+                            borderRadius: "5px",
+                            mb: 1
+                        }} 
+                      />
                     </ListItem>
                   ))
                 ) : (
@@ -208,9 +235,35 @@ function DashboardPage() {
                 
                     {users?.length > 0 ? (
                 users.map((userData, index) => (
-                  <ListItem key={index} divider>
-                    <PersonIcon />  <ListItemText primary={userData.name} />
-                  </ListItem>
+                  <ListItem key={index} divider sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                    {/* Left Side: Icon and Name with Gap */}
+                    <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                      <PersonIcon />
+                      <ListItemText primary={userData.name} />
+                    </Box>
+              
+                    <Box
+                      sx={{
+                        display: "flex",
+                        flexDirection: "column",
+                        alignItems: "flex-end", // Ensures right text aligns correctly
+                        justifyContent: "center", // Centers it with the name
+                      }}
+                    >
+                      <Typography variant="body2" sx={{ color: isPositive ? "green" : "red" }}>
+                        {isPositive ? "owes you" : "you owe"}
+                      </Typography>
+                      <Typography
+                        variant="h6"
+                        sx={{
+                          color: isPositive ? "green" : "red",
+                          fontWeight: "bold",
+                        }}
+                      >
+                        ${Math.abs(userData.amount).toFixed(2)}
+                      </Typography>
+                    </Box>
+                </ListItem>
                 ))
               ) : (
                 <Typography color="textSecondary" align="center">

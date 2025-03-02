@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useParams, useHistory } from "react-router-dom";  
-import { List, ListItem, ListItemText, Box, Fab, Typography } from "@mui/material";
+import { List, ListItem, ListItemText, Box, Fab, Typography, CircularProgress } from "@mui/material";
 import { Add, Group, Receipt, People, Close } from "@mui/icons-material";
 import GroupDetails from "./groupDetails";
 import NoGroupSelected from "./noGroupSelected";
@@ -25,11 +25,45 @@ const Groups = () => {
     const history = useHistory();
     const [selectedGroup, setSelectedGroup] = useState(groupId || null);
     const [showFloatingOptions, setShowFloatingOptions] = useState(false);
+    const [groups, setGroups] = useState([]);
+    const [loading, setLoading] = useState(true);
 
     const handleSelectGroup = (id) => {
         setSelectedGroup(id);
         history.push(`/groups/${id}`);
     };
+
+    useEffect(()=>{
+        const fetchGroups = async () => {
+            try {
+              const response = await fetch("http://localhost:8080/api/users/groups", {
+                method: "GET",
+                headers: {
+                  "Content-Type": "application/json",
+                  "Authorization": `Bearer ${JSON.parse(localStorage.getItem("authTokens"))}`
+                }
+              });
+        
+              const groupsData = await response.json();
+              setGroups(groupsData || []);
+            } catch (error) {
+              console.error("Error fetching groups:", error);
+            } finally {
+              setLoading(false);
+            }
+        }
+        fetchGroups();
+    })
+
+    
+
+    // if (loading) {
+    //     return (
+    //       <Box sx={{ display: "flex", justifyContent: "center", alignItems: "center", minHeight: "100vh" }}>
+    //         <CircularProgress />
+    //       </Box>
+    //     );
+    //   }
 
     return (
         <Box sx={{ display: "flex", flexGrow: 1, height: "calc(100vh - 64px)", overflow: "hidden" }}>
@@ -37,7 +71,7 @@ const Groups = () => {
             <Box sx={{ width: "15%", p: 2, borderRight: "1px solid #ccc", display: "flex", flexDirection: "column", height: "100%" }}>
                 <Typography variant="h5" fontWeight="bold" mb={2}>Groups</Typography>
                 <List sx={{ flexGrow: 1, overflowY: "auto" }}>
-                    {groups.map((group) => (
+                    {groups?.map((group) => (
                         <ListItem 
                             key={group.id} 
                             button
@@ -58,7 +92,7 @@ const Groups = () => {
 
             {/* Right Section - Conditional Rendering */}
             <Box sx={{ width: "85%", height: "100%", display: "flex", flexDirection: "column" }}>
-                {selectedGroup ? <GroupDetails groupId={selectedGroup} groups={groups} /> : <NoGroupSelected />}
+                {selectedGroup ? <GroupDetails groupId={selectedGroup} /> : <NoGroupSelected />}
             </Box>
 
             {/* Floating Action Button */}

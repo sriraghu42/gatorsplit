@@ -1,9 +1,34 @@
+import React, { useEffect, useState } from "react";
 import { Box, Typography, Paper, List, ListItem, ListItemText, Grid, IconButton } from "@mui/material";
 import PersonIcon from "@mui/icons-material/Person";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 
-const GroupDetails = ({ groupId, groups }) => {
-    const group = groups.find((g) => g.id === groupId);
+const GroupDetails = ({ groupId }) => {
+    const [group, setGroups] = useState([]);
+    const [loading, setLoading] = useState(true);
+    //const group = groups.find((g) => g.id === groupId);
+
+    useEffect(() => {
+        const fetchGroupdata = async() => {
+            try {
+                const response = await fetch("http://localhost:8080/api/users/groups", {
+                  method: "GET",
+                  headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${JSON.parse(localStorage.getItem("authTokens"))}`
+                  }
+                });
+          
+                const groupsData = await response.json();
+                setGroups(groupsData || []);
+              } catch (error) {
+                console.error("Error fetching groups:", error);
+              } finally {
+                setLoading(false);
+              }
+        }
+        fetchGroupdata();
+    })
 
     if (!group) return <Typography variant="h6">No group found.</Typography>;
 
@@ -25,7 +50,7 @@ const GroupDetails = ({ groupId, groups }) => {
                             Activity
                         </Typography>
                         <List sx={{ flexGrow: 1, overflowY: "auto" }}>
-                            {group.activity.map((act, index) => (
+                            {group?.activity?.map((act, index) => (
                                 <ListItem key={index} sx={{ p: 0.5 }}>
                                     <ListItemText primary={`• ${act}`} />
                                 </ListItem>
@@ -44,7 +69,7 @@ const GroupDetails = ({ groupId, groups }) => {
                             Members
                         </Typography>
                         <List sx={{ flexGrow: 1, overflowY: "auto" }}>
-                            {group.members.map((member, index) => (
+                            {group?.members?.map((member, index) => (
                                 <ListItem key={index} sx={{ display: "flex", alignItems: "center", p: 0.5 }}>
                                     <PersonIcon sx={{ mr: 1, color: "gray" }} />
                                     <ListItemText primary={member} />
