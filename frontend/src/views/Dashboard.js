@@ -17,7 +17,7 @@ import AccountBalanceIcon from "@mui/icons-material/AccountBalance";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import DoneAllIcon from "@mui/icons-material/DoneAll";
 import PersonIcon from '@mui/icons-material/Person';
-import CreateGroup from "./CreateGroup";
+import CreateGroup from "./groups/CreateGroup";
 
 function DashboardPage() {
   const [groups, setGroups] = useState([]);
