@@ -27,52 +27,63 @@ function DashboardPage() {
   const [loading, setLoading] = useState(true);
   const [openModal, setOpenModal] = useState(false);
   const history = useHistory();
+  const userid = JSON.parse(localStorage.getItem("userid"))
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {       
-        const [usersResponse] = await Promise.all([
-          fetch("http://localhost:8080/api/users", {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              "Authorization": `Bearer ${JSON.parse(localStorage.getItem("authTokens"))}` // ✅ Add token here
-            }
-          }),
-        ]);        
+    
+    // const fetchData = async () => {
+    //   try {       
+    //     const [usersResponse] = await Promise.all([
+    //       fetch("http://localhost:8080/api/users", {
+    //         method: "GET",
+    //         headers: {
+    //           "Content-Type": "application/json",
+    //           "Authorization": `Bearer ${JSON.parse(localStorage.getItem("authTokens"))}` // ✅ Add token here
+    //         }
+    //       }),
+    //     ]);        
   
-        const usersData = await usersResponse.json();        
-        const balancesData = []
+    //     const usersData = await usersResponse.json();        
+    //     const balancesData = []
         
-        setUsers(usersData || []); // Set users from the API response
-        const  balanceResponse=[]
-        setBalances(balancesData || null);
+    //     setUsers(usersData || []); // Set users from the API response
+    //     const  balanceResponse=[]
+    //     setBalances(balancesData || null);
        
         
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+    //   } catch (error) {
+    //     console.error("Error fetching data:", error);
+    //   } finally {
+    //     setLoading(false);
+    //   }
+    // };
     fetchUsersAndBalances();
     fetchGroups();
-    fetchData();
+    //fetchData();
   }, []);
 
   const fetchUsersAndBalances = async() => {
     try {
-      const response = await fetch("", {
+      const response = await fetch(`http://localhost:8080/api/dashboard/balances/${userid}`, {
         method: "GET",
         headers: {
           "Content-Type": "application/json",
           "Authorization": `Bearer ${JSON.parse(localStorage.getItem("authTokens"))}`
         }
+
+      });
+      const data = await response.json()
+      setBalances({
+        totalBalance: data.net_balance,
+        youOwe: data.total_owed,
+        youAreOwed: data.total_due
       })
+      setUsers(data.users);
+      console.log(data, "AKkkka")
     } catch(err) {
       console.error("Error fetching Users data and Balances:", err);
     } 
-  }
+  } //list of users {their balances to current}, current totals.
 
   const fetchGroups = async () => {
     try {
@@ -234,37 +245,40 @@ function DashboardPage() {
               <List sx={{ maxHeight: "300px", overflowY: "auto" }}>
                 
                     {users?.length > 0 ? (
-                users.map((userData, index) => (
+                users.filter((userData) => userData.user_id != userid) .map((userData, index) => (
+
+                  //do nnot display current user.
+
                   <ListItem key={index} divider sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                    {/* Left Side: Icon and Name with Gap */}
-                    <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-                      <PersonIcon />
-                      <ListItemText primary={userData.name} />
-                    </Box>
-              
-                    <Box
+                  {/* Left Side: Icon and Name with Gap */}
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                    <PersonIcon />
+                    <ListItemText primary={userData.username} />
+                  </Box>
+            
+                  <Box
+                    sx={{
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "flex-end", // Ensures right text aligns correctly
+                      justifyContent: "center", // Centers it with the name
+                    }}
+                  >
+                    <Typography variant="body2" sx={{ color: userData.net_balance>=0 ? "green" : "red" }}>
+                      {userData.net_balance>=0 ? "owes you" : "you owe"}
+                    </Typography>
+                    <Typography
+                      variant="h6"
                       sx={{
-                        display: "flex",
-                        flexDirection: "column",
-                        alignItems: "flex-end", // Ensures right text aligns correctly
-                        justifyContent: "center", // Centers it with the name
+                        color: userData.net_balance>=0 ? "green" : "red",
+                        fontWeight: "bold",
                       }}
                     >
-                      <Typography variant="body2" sx={{ color: isPositive ? "green" : "red" }}>
-                        {isPositive ? "owes you" : "you owe"}
-                      </Typography>
-                      <Typography
-                        variant="h6"
-                        sx={{
-                          color: isPositive ? "green" : "red",
-                          fontWeight: "bold",
-                        }}
-                      >
-                        ${Math.abs(userData.amount).toFixed(2)}
-                      </Typography>
-                    </Box>
-                </ListItem>
-                ))
+                      ${Math.abs(userData.net_balance).toFixed(2)}
+                    </Typography>
+                  </Box>
+              </ListItem>
+                                ))
               ) : (
                 <Typography color="textSecondary" align="center">
                   No users available.
