@@ -5,6 +5,7 @@ import (
 	"go-auth-app/database"
 	"go-auth-app/models"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/golang-jwt/jwt/v4"
@@ -102,7 +103,10 @@ func Login(w http.ResponseWriter, r *http.Request) {
 
 	// ✅ Ensure we return a valid JSON response with a string token
 	w.Header().Set("Content-Type", "application/json")
-	json.NewEncoder(w).Encode(map[string]string{"token": tokenString})
+	json.NewEncoder(w).Encode(map[string]string{
+		"token": tokenString,
+		"id":    strconv.FormatUint(uint64(user.ID), 10), // Convert uint to string
+	})
 }
 
 func Profile(w http.ResponseWriter, r *http.Request) {
