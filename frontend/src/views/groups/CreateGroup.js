@@ -47,7 +47,7 @@ const CreateGroup = ({ open, onClose, onGroupCreated }) => {
       return;
     }
 
-    const userIds = selectedUsers.map(user => user.id); // Extract selected user IDs
+    const userIds = selectedUsers.map(user => user.id); 
 
     try {
       const response = await fetch("http://localhost:8080/api/groups", {

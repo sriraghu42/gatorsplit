@@ -89,6 +89,7 @@ export const AuthProvider = ({ children }) => {
 
         // ✅ Ensure token is stored as a string
         localStorage.setItem("authTokens", JSON.stringify(data.token));
+        localStorage.setItem("userid", JSON.stringify(data.id))
         setAuthTokens(data.token);
         setUser(jwtDecode(data.token));
         history.push("/dashboard");

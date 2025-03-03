@@ -17,7 +17,8 @@ import AccountBalanceIcon from "@mui/icons-material/AccountBalance";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import DoneAllIcon from "@mui/icons-material/DoneAll";
 import PersonIcon from '@mui/icons-material/Person';
-import CreateGroup from "./CreateGroup";
+import CreateGroup from "./groups/CreateGroup";
+import { useHistory } from "react-router-dom";  
 
 function DashboardPage() {
   const [groups, setGroups] = useState([]);
@@ -25,40 +26,64 @@ function DashboardPage() {
   const [balances, setBalances] = useState(null);
   const [loading, setLoading] = useState(true);
   const [openModal, setOpenModal] = useState(false);
+  const history = useHistory();
+  const userid = JSON.parse(localStorage.getItem("userid"))
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {       
-        const [usersResponse] = await Promise.all([
-          fetch("http://localhost:8080/api/users", {
-            method: "GET",
-            headers: {
-              "Content-Type": "application/json",
-              "Authorization": `Bearer ${JSON.parse(localStorage.getItem("authTokens"))}` // ✅ Add token here
-            }
-          }),
-        ]);        
+    
+    // const fetchData = async () => {
+    //   try {       
+    //     const [usersResponse] = await Promise.all([
+    //       fetch("http://localhost:8080/api/users", {
+    //         method: "GET",
+    //         headers: {
+    //           "Content-Type": "application/json",
+    //           "Authorization": `Bearer ${JSON.parse(localStorage.getItem("authTokens"))}` // ✅ Add token here
+    //         }
+    //       }),
+    //     ]);        
   
-        const usersData = await usersResponse.json();        
-        const balancesData = []
+    //     const usersData = await usersResponse.json();        
+    //     const balancesData = []
         
-        
-
-        
-        setUsers(usersData || []); // Set users from the API response
-        const  balanceResponse=[]
-        setBalances(balancesData || null);
+    //     setUsers(usersData || []); // Set users from the API response
+    //     const  balanceResponse=[]
+    //     setBalances(balancesData || null);
        
         
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+    //   } catch (error) {
+    //     console.error("Error fetching data:", error);
+    //   } finally {
+    //     setLoading(false);
+    //   }
+    // };
+    fetchUsersAndBalances();
     fetchGroups();
-    fetchData();
+    //fetchData();
   }, []);
+
+  const fetchUsersAndBalances = async() => {
+    try {
+      const response = await fetch(`http://localhost:8080/api/dashboard/balances/${userid}`, {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${JSON.parse(localStorage.getItem("authTokens"))}`
+        }
+
+      });
+      const data = await response.json()
+      setBalances({
+        totalBalance: data.net_balance,
+        youOwe: data.total_owed,
+        youAreOwed: data.total_due
+      })
+      setUsers(data.users);
+      console.log(data, "AKkkka")
+    } catch(err) {
+      console.error("Error fetching Users data and Balances:", err);
+    } 
+  } //list of users {their balances to current}, current totals.
 
   const fetchGroups = async () => {
     try {
@@ -78,6 +103,10 @@ function DashboardPage() {
       setLoading(false);
     }
   }
+
+  const handleSelectGroup = (id) => {
+    history.push(`/groups/${id}`);
+  };
 
 
   if (loading) {
@@ -183,7 +212,16 @@ function DashboardPage() {
                 {groups.length > 0 ? (
                   groups.map((group, index) => (
                     <ListItem key={index} divider>
-                      <ListItemText primary={group.name} />
+                      <ListItemText primary={group.name}
+                        key={group.id} 
+                        button
+                        onClick={() => handleSelectGroup(group.id)}
+                        sx={{
+                            "&:hover": { backgroundColor: "#e3f2fd" },
+                            borderRadius: "5px",
+                            mb: 1
+                        }} 
+                      />
                     </ListItem>
                   ))
                 ) : (
@@ -207,11 +245,40 @@ function DashboardPage() {
               <List sx={{ maxHeight: "300px", overflowY: "auto" }}>
                 
                     {users?.length > 0 ? (
-                users.map((userData, index) => (
-                  <ListItem key={index} divider>
-                    <PersonIcon />  <ListItemText primary={userData.name} />
-                  </ListItem>
-                ))
+                users.filter((userData) => userData.user_id != userid) .map((userData, index) => (
+
+                  //do nnot display current user.
+
+                  <ListItem key={index} divider sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                  {/* Left Side: Icon and Name with Gap */}
+                  <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                    <PersonIcon />
+                    <ListItemText primary={userData.username} />
+                  </Box>
+            
+                  <Box
+                    sx={{
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "flex-end", // Ensures right text aligns correctly
+                      justifyContent: "center", // Centers it with the name
+                    }}
+                  >
+                    <Typography variant="body2" sx={{ color: userData.net_balance>=0 ? "green" : "red" }}>
+                      {userData.net_balance>=0 ? "owes you" : "you owe"}
+                    </Typography>
+                    <Typography
+                      variant="h6"
+                      sx={{
+                        color: userData.net_balance>=0 ? "green" : "red",
+                        fontWeight: "bold",
+                      }}
+                    >
+                      ${Math.abs(userData.net_balance).toFixed(2)}
+                    </Typography>
+                  </Box>
+              </ListItem>
+                                ))
               ) : (
                 <Typography color="textSecondary" align="center">
                   No users available.
