@@ -1,93 +1,220 @@
-import React, { useEffect, useState } from "react";
-import { Box, Typography, Paper, List, ListItem, ListItemText, Grid, IconButton } from "@mui/material";
+import { useEffect, useState, useCallback } from "react";
+import { 
+    Box, Typography, Paper, List, ListItem, ListItemText, Grid, Button, 
+    Chip, Divider 
+} from "@mui/material";
+import AddExpenseModal from "../AddExpensesModal";
 import PersonIcon from "@mui/icons-material/Person";
 import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
+import PaymentsIcon from "@mui/icons-material/Payments";
+import DoneAllIcon from "@mui/icons-material/DoneAll";
+import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
 
-const GroupDetails = ({ groupId }) => {
-    const [group, setGroups] = useState([]);
+const GroupDetails = ({ groupId, groupName }) => {
+    const userid = JSON.parse(localStorage.getItem("userid")); // Get current user ID
+    const [group, setGroup] = useState(null);
     const [loading, setLoading] = useState(true);
-    //const group = groups.find((g) => g.id === groupId);
+    const [expenses, setExpenses] = useState([]);
+    const [isExpenseModalOpen, setExpenseModalOpen] = useState(false);
 
-    useEffect(() => {
-        const fetchGroupdata = async() => {
-            try {
-                const response = await fetch("http://localhost:8080/api/users/groups", {
-                  method: "GET",
-                  headers: {
+    // Function to fetch group details
+    const getUsersOfAGroup = useCallback(async () => {
+        try {
+            const response = await fetch(`http://localhost:8080/api/groups/${groupId}/balances`, {
+                method: "GET",
+                headers: {
                     "Content-Type": "application/json",
                     "Authorization": `Bearer ${JSON.parse(localStorage.getItem("authTokens"))}`
-                  }
-                });
-          
-                const groupsData = await response.json();
-                setGroups(groupsData || []);
-              } catch (error) {
-                console.error("Error fetching groups:", error);
-              } finally {
-                setLoading(false);
-              }
+                }
+            });
+
+            const groupData = await response.json();
+            setGroup(groupData);
+            console.log("Group Data:", groupData);
+        } catch (error) {
+            console.error("Error fetching group data:", error);
+        } finally {
+            setLoading(false);
         }
-        fetchGroupdata();
-    })
+    }, [groupId]);
+
+    // Function to fetch expenses
+    const fetchExpenses = useCallback(async () => {
+        try {
+            const response = await fetch(`http://localhost:8080/api/groups/${groupId}/expenses`, {
+                method: "GET",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Authorization": `Bearer ${JSON.parse(localStorage.getItem("authTokens"))}`
+                }
+            });
+
+            const expensesData = await response.json();
+            setExpenses(expensesData);
+            console.log("Expenses Data:", expensesData);
+        } catch (error) {
+            console.error("Error fetching expenses:", error);
+        }
+    }, [groupId]);
+
+    useEffect(() => {
+        if (groupId) {
+            getUsersOfAGroup();
+            fetchExpenses();
+        }
+    }, [groupId, getUsersOfAGroup, fetchExpenses]);
+
+    if (loading) {
+        return <Typography variant="h6">Loading group data...</Typography>;
+    }
 
     if (!group) return <Typography variant="h6">No group found.</Typography>;
 
     return (
-        <Box sx={{ display: "flex", flexDirection: "column", flexGrow: 1, height: "100%" }}>
-            <Grid container sx={{ flexGrow: 1, height: "100%" }}>
-                
-                {/* Left Section - 85% (Group Name & Activity) */}
+        <Box sx={{ display: "flex", flexDirection: "column", flexGrow: 1, height: "100%", p: 2 }}>
+            <Grid container sx={{ flexGrow: 1, height: "100%" }} spacing={3}>
+
+                {/* Left Section - Expenses Activity */}
                 <Grid item xs={9} sx={{ display: "flex", flexDirection: "column", height: "100%" }}>
+                    <Typography variant="h4" fontWeight="bold" textAlign="center" mb={2} color="black">
+                        {groupName}
+                    </Typography>
                     <Paper 
                         elevation={3} 
-                        sx={{ p: 3, flexGrow: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}
+                        sx={{ p: 3, flexGrow: 1, display: "flex", flexDirection: "column", overflow: "hidden", borderRadius: 3 }}
                     >
-                        <Typography variant="h4" fontWeight="bold" mb={2}>
-                            {group.name}
-                        </Typography>
+                        {/* Activity Header with Buttons */}
+                        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
+                            <Typography variant="h5" fontWeight="bold">
+                                Expenses
+                            </Typography>
+                            <Box sx={{ display: "flex", gap: 2 }}>
+                                <Button 
+                                    variant="contained" 
+                                    color="primary" 
+                                    startIcon={<PaymentsIcon />}
+                                    sx={{ borderRadius: 2 }}
+                                    onClick={() => setExpenseModalOpen(true)} // Open modal
+                                >
+                                    Add Expense
+                                </Button>
+                                <Button 
+                                    variant="contained" 
+                                    color="secondary" 
+                                    startIcon={<DoneAllIcon />}
+                                    sx={{ borderRadius: 2 }}
+                                >
+                                    Settle Up
+                                </Button>
+                            </Box>
+                        </Box>
 
-                        <Typography variant="h6" fontWeight="bold" mb={1}>
-                            Activity
-                        </Typography>
-                        <List sx={{ flexGrow: 1, overflowY: "auto" }}>
-                            {group?.activity?.map((act, index) => (
-                                <ListItem key={index} sx={{ p: 0.5 }}>
-                                    <ListItemText primary={`• ${act}`} />
-                                </ListItem>
-                            ))}
+                        {/* Expenses List - Improved UI */}
+                        <List sx={{ flexGrow: 1, overflowY: "auto", maxHeight: "60vh" }}>
+                            {expenses.length > 0 ? (
+                                expenses.map((expense) => {
+                                    const paidByParticipant = expense.participants.find(p => p.user_id == expense.paid_by);
+                                    const paidByName = paidByParticipant ? paidByParticipant.username : "Unknown";
+                                    const displayPaidBy = expense.paid_by == userid ? "You" : paidByName;
+
+                                    const userOwe = expense.participants.find(p => p.user_id == userid);
+                                    const amountOwed = userOwe ? userOwe.amount_owed.toFixed(2) : "0.00";
+
+                                    const totalOwedToPayer = expense.participants
+                                        .filter(p => p.user_id !== expense.paid_by)
+                                        .reduce((sum, p) => sum + p.amount_owed, 0)
+                                        .toFixed(2);
+
+                                    const amountYouAreOwed = expense.paid_by == userid ? (expense.amount - amountOwed).toFixed(2) : "0.00";
+
+                                    let activityText;
+                                    if (expense.paid_by == userid) {
+                                        activityText = (
+                                            <Typography variant="body2" sx={{ fontSize: "1rem" }}>
+                                                You paid <b>${expense.amount}</b> for <b>{expense.title}</b>. 
+                                                You are owed <b>${amountYouAreOwed}</b>.
+                                            </Typography>
+                                        );
+                                    } else {
+                                        activityText = (
+                                            <Typography variant="body2" sx={{ fontSize: "1rem" }}>
+                                                <b>{displayPaidBy}</b> paid <b>${expense.amount}</b> for <b>{expense.title}</b>. 
+                                                You owe <b>${amountOwed}</b>.
+                                            </Typography>
+                                        );
+                                    }
+
+                                    return (
+                                        <ListItem key={expense.id} sx={{ p: 1, display: "flex", alignItems: "center", gap: 2, borderBottom: "1px solid #ddd" }}>
+                                            <AttachMoneyIcon sx={{ color: "#4CAF50" }} />
+                                            <ListItemText primary={activityText} />
+                                            {expense.paid_by == userid ? (
+                                                <Chip
+                                                    label={`You are owed $${amountYouAreOwed}`}
+                                                    color="success"
+                                                    variant="outlined"
+                                                    sx={{ fontSize: "0.9rem", fontWeight: "bold" }}
+                                                />
+                                            ) : (
+                                                <Chip
+                                                    label={`You owe $${amountOwed}`}
+                                                    color="error"
+                                                    variant="outlined"
+                                                    sx={{ fontSize: "0.9rem", fontWeight: "bold" }}
+                                                />
+                                            )}
+                                        </ListItem>
+                                    );
+                                })
+                            ) : (
+                                <Typography variant="body2" color="textSecondary">
+                                    No recent expenses
+                                </Typography>
+                            )}
                         </List>
                     </Paper>
                 </Grid>
 
-                {/* Right Section - 15% (Group Members) */}
+                {/* Right Section - Members */}
                 <Grid item xs={3} sx={{ display: "flex", flexDirection: "column", height: "100%" }}>
                     <Paper 
                         elevation={3} 
-                        sx={{ p: 3, flexGrow: 1, display: "flex", flexDirection: "column", overflow: "hidden" }}
+                        sx={{ p: 3, flexGrow: 1, display: "flex", flexDirection: "column", borderRadius: 3 }}
                     >
-                        <Typography variant="h6" fontWeight="bold" mb={1}>
+                        <Typography variant="h6" fontWeight="bold" mb={2}>
                             Members
                         </Typography>
-                        <List sx={{ flexGrow: 1, overflowY: "auto" }}>
-                            {group?.members?.map((member, index) => (
-                                <ListItem key={index} sx={{ display: "flex", alignItems: "center", p: 0.5 }}>
-                                    <PersonIcon sx={{ mr: 1, color: "gray" }} />
-                                    <ListItemText primary={member} />
-                                </ListItem>
-                            ))}
 
-                            {/* Add New Member Button */}
-                            <ListItem sx={{ display: "flex", alignItems: "center", p: 0.5 }}>
-                                <IconButton color="primary">
-                                    <AddCircleOutlineIcon />
-                                </IconButton>
-                                <ListItemText primary="Add Member" />
-                            </ListItem>
+                        <List sx={{ flexGrow: 1, overflowY: "auto", maxHeight: "60vh" }}>
+                            {group?.length > 0 ? (
+                                group.map((user, index) => (
+                                    <ListItem key={index} sx={{ display: "flex", alignItems: "center", p: 0.5 }}>
+                                        <PersonIcon sx={{ mr: 1, color: "gray" }} />
+                                        <ListItemText primary={user.username} />
+                                    </ListItem>
+                                ))
+                            ) : (
+                                <Typography variant="body2" color="textSecondary">
+                                    No members found
+                                </Typography>
+                            )}
                         </List>
+                        <Box sx={{ mt: "auto", pt: 2, display: "flex", justifyContent: "center" }}>
+                            <Button 
+                                variant="outlined" 
+                                color="primary" 
+                                startIcon={<AddCircleOutlineIcon />}
+                                sx={{ borderRadius: 2, width: "100%" }}
+                            >
+                                Add Member
+                            </Button>
+                        </Box>
                     </Paper>
                 </Grid>
-
             </Grid>
+
+            {/* Add Expense Modal */}
+            <AddExpenseModal open={isExpenseModalOpen} onClose={() => setExpenseModalOpen(false)} groupId={groupId} members={group?.members} currentUser={userid} fetchExpenses={fetchExpenses} />
         </Box>
     );
 };
