@@ -127,7 +127,7 @@ const CreateGroup = ({ open, onClose, onGroupCreated }) => {
           <Button onClick={onClose} color="secondary">
             Cancel
           </Button>
-          <Button onClick={handleCreateGroup} variant="contained" sx={{ ml: 2 }}>
+          <Button onClick={handleCreateGroup} label="create" variant="contained" sx={{ ml: 2 }}>
             Create
           </Button>
         </Box>
