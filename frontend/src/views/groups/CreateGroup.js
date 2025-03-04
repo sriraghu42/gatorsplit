@@ -47,7 +47,7 @@ const CreateGroup = ({ open, onClose, onGroupCreated }) => {
       return;
     }
 
-    const userIds = selectedUsers.map(user => user.id); // Extract selected user IDs
+    const userIds = selectedUsers.map(user => user.id); 
 
     try {
       const response = await fetch("http://localhost:8080/api/groups", {
@@ -127,7 +127,7 @@ const CreateGroup = ({ open, onClose, onGroupCreated }) => {
           <Button onClick={onClose} color="secondary">
             Cancel
           </Button>
-          <Button onClick={handleCreateGroup} variant="contained" sx={{ ml: 2 }}>
+          <Button onClick={handleCreateGroup} label="create" variant="contained" sx={{ ml: 2 }}>
             Create
           </Button>
         </Box>
