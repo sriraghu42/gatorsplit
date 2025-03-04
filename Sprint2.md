@@ -4,6 +4,24 @@
 
 ### Unit Testing
 
+#### LoginPage Component Tests
+
+- **renders LoginPage correctly** - Verifies that the login page renders with heading, input fields, and login button.
+- **allows input changes** - Ensures the email and password fields accept user input.
+- **displays an error when trying to login with empty fields** - Checks that an error message appears when submitting empty fields.
+- **calls loginUser function on valid form submission** - Confirms that the loginUser function is called with correct credentials.
+- **displays error message when login fails** - Ensures an error message is shown when login credentials are incorrect.
+
+
+#### RegisterPage Component Tests
+
+- **renders RegisterPage correctly** - Verifies that the registration page renders with heading, input fields, and register button.
+- **allows input changes** - Ensures the username, email, and password fields accept user input.
+- **displays an error when trying to register with empty fields** - Checks that an error message appears when submitting empty fields.
+- **calls registerUser function on valid form submission** - Confirms that the registerUser function is called with correct credentials.
+- **displays success message when registration is successful** - Ensures a success message appears after a successful registration.
+- **displays error message when registration fails** - Ensures an error message is shown when registration fails.
+
 
 ### Cypress Testing
 
