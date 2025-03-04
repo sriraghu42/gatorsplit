@@ -228,7 +228,7 @@ const AddExpenseModal = ({ open, onClose, currentUser, groupId = null, members =
             </DialogContent>
             <DialogActions>
                 <Button onClick={onClose} color="secondary">Cancel</Button>
-                <Button onClick={handleSubmit} color="primary" variant="contained">Add Expense</Button>
+                <Button onClick={handleSubmit} color="primary" variant="contained">Add expense</Button>
             </DialogActions>
         </Dialog>
     );
