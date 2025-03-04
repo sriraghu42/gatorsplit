@@ -4,6 +4,51 @@
 
 ### Unit Testing
 
+#### LoginPage Component Tests
+
+- **renders LoginPage correctly** - Verifies that the login page renders with heading, input fields, and login button.
+- **allows input changes** - Ensures the email and password fields accept user input.
+- **displays an error when trying to login with empty fields** - Checks that an error message appears when submitting empty fields.
+- **calls loginUser function on valid form submission** - Confirms that the loginUser function is called with correct credentials.
+- **displays error message when login fails** - Ensures an error message is shown when login credentials are incorrect.
+
+
+#### RegisterPage Component Tests
+
+- **renders RegisterPage correctly** - Verifies that the registration page renders with heading, input fields, and register button.
+- **allows input changes** - Ensures the username, email, and password fields accept user input.
+- **displays an error when trying to register with empty fields** - Checks that an error message appears when submitting empty fields.
+- **calls registerUser function on valid form submission** - Confirms that the registerUser function is called with correct credentials.
+- **displays success message when registration is successful** - Ensures a success message appears after a successful registration.
+- **displays error message when registration fails** - Ensures an error message is shown when registration fails.
+
+#### CreateGroup Component - Test Cases
+
+- **Renders modal** when open.  
+- **Logs error** if fetching users fails.  
+- **Prevents empty submissions** with an alert.  
+- **Creates a group** and triggers API call.  
+- **Handles API failure** with an alert.  
+
+#### Groups Component - Test Cases
+
+- **Fetches and displays groups** when API call succeeds.  
+- **Shows loading state** before fetching data.  
+- **Navigates to a group** when clicked.  
+- **Handles API errors** when fetching fails.  
+
+#### GroupDetails Component - Test Cases
+
+- **Fetches and displays group details** when API call succeeds.  
+- **Handles API errors** when fetching group details fails.  
+- **Opens and closes 'Add Expense' modal** when triggered.  
+
+# AddExpenseModal Component - Test Cases
+
+- **Renders AddExpenseModal correctly** with all fields and buttons.  
+- **Allows input changes** for expense title and amount.  
+- **Calls onClose when cancel button is clicked** to close the modal.  
+
 
 ### Cypress Testing
 
