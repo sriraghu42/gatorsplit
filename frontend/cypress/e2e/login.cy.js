@@ -46,7 +46,7 @@ describe("Login Page", () => {
     cy.visit("/login");
   });
   afterEach(() => {
-    cy.wait(2000); // Wait for 2 seconds between tests
+    cy.wait(3000); // Wait for 2 seconds between tests
   });
 
   it("should show a SweetAlert error message for invalid credentials", () => {
@@ -73,6 +73,7 @@ describe("Login Page", () => {
     // Input valid credentials
     cy.get("input[name='email']").type("chand"); // Using username instead of email
     cy.get("input[name='password']").type("haha");
+    cy.wait(600)
     cy.get("button[type='submit']").click();
 
     cy.wait("@loginUser").then((interception) => {
