@@ -1,5 +1,16 @@
 # Sprint2
 
+## User Stories
+[View User Stories](https://github.com/sriraghu42/gatorsplit/issues?q=label%3AUserStory+label%3ASprint2)
+
+## Issues Overview
+•⁠  ⁠*Planned Issues:* [View Here](https://github.com/sriraghu42/gatorsplit/issues?q=label%3ASprint2%20)
+•⁠  ⁠*Successfully Completed Issues:* [View Here](https://github.com/sriraghu42/gatorsplit/issues?q=label%3ASprint2%20is%3Aclosed)
+•⁠  ⁠*Issues Not Completed:* [View Here](https://github.com/sriraghu42/gatorsplit/issues?q=label%3ASprint2%20is%3Aopen)
+
+## Demo Video:
+[Demo Video](https://youtu.be/SZdqmzxLpMQ)
+
 ## Front-end Testing
 
 ### Unit Testing
