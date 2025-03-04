@@ -1,5 +1,51 @@
 # Sprint2
 
+## Front-end Testing
+
+### Unit Testing
+
+
+### Cypress Testing
+
+#### 1. Register.cy.js 
+
+- Check registration form loads correctly, API returns a success message
+- UI confirms "Account created successfully!" is displayed
+
+#### 2. Login.cy.js
+
+- Successful login scenario: 
+  - User enters valid credentials
+  - API returns a valid JWT token
+  - Token is stored in localStorage
+  - User is redirected to the dashboard
+
+- Unsuccessful login scenario
+  - Invalid credentials trigger an error message using SweetAlert
+  - Ensures the UI displays "Invalid credentials"
+
+#### 3. View_group.cy.js
+
+- User logs in, receives, and stores a JWT token
+- /api/groups API call is intercepted
+- Ensures API returns status 200 and a valid array of groups
+- UI correctly displays the group list
+
+
+#### 4. addgroup.cy.js
+
+- Clicking "Create Group" opens the modal
+- User enters a group name and selects users
+- API request (POST /api/groups) is intercepted and validated
+- UI confirms the group is created and displayed in the list
+
+
+#### 5. add_expense.cy.js
+
+- Clicking "Add Expense" opens the modal
+- User fills in expense details (title, amount, payer, split users)
+- API request (POST /api/expenses) is intercepted and validated
+- UI confirms the expense appears in the group’s expense list
 
 
 ## Backend-API's
