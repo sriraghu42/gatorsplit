@@ -30,9 +30,9 @@ const GroupDetails = ({ groupId, groupName }) => {
 
             const groupData = await response.json();
             setGroup(groupData);
-            console.log("Group Data:", groupData);
+            // console.log("Group Data:", groupData);
         } catch (error) {
-            console.error("Error fetching group data:", error);
+            // console.error("Error fetching group data:", error);
         } finally {
             setLoading(false);
         }
@@ -51,9 +51,9 @@ const GroupDetails = ({ groupId, groupName }) => {
 
             const expensesData = await response.json();
             setExpenses(expensesData);
-            console.log("Expenses Data:", expensesData);
+            // console.log("Expenses Data:", expensesData);
         } catch (error) {
-            console.error("Error fetching expenses:", error);
+            // console.error("Error fetching expenses:", error);
         }
     }, [groupId]);
 
