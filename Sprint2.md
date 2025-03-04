@@ -22,6 +22,33 @@
 - **displays success message when registration is successful** - Ensures a success message appears after a successful registration.
 - **displays error message when registration fails** - Ensures an error message is shown when registration fails.
 
+#### CreateGroup Component - Test Cases
+
+- **Renders modal** when open.  
+- **Logs error** if fetching users fails.  
+- **Prevents empty submissions** with an alert.  
+- **Creates a group** and triggers API call.  
+- **Handles API failure** with an alert.  
+
+#### Groups Component - Test Cases
+
+- **Fetches and displays groups** when API call succeeds.  
+- **Shows loading state** before fetching data.  
+- **Navigates to a group** when clicked.  
+- **Handles API errors** when fetching fails.  
+
+#### GroupDetails Component - Test Cases
+
+- **Fetches and displays group details** when API call succeeds.  
+- **Handles API errors** when fetching group details fails.  
+- **Opens and closes 'Add Expense' modal** when triggered.  
+
+# AddExpenseModal Component - Test Cases
+
+- **Renders AddExpenseModal correctly** with all fields and buttons.  
+- **Allows input changes** for expense title and amount.  
+- **Calls onClose when cancel button is clicked** to close the modal.  
+
 
 ### Cypress Testing
 
