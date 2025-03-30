@@ -1,4 +1,6 @@
 import React, { useEffect, useState } from "react";
+import { IconButton } from "@mui/material";
+import DeleteIcon from "@mui/icons-material/Delete";
 import {
   Box,
   Button,
@@ -19,7 +21,10 @@ import DoneAllIcon from "@mui/icons-material/DoneAll";
 import PersonIcon from '@mui/icons-material/Person';
 import CreateGroup from "./groups/CreateGroup";
 import { useHistory } from "react-router-dom";  
+import Swal from "sweetalert2";
+import withReactContent from "sweetalert2-react-content";
 
+const MySwal = withReactContent(Swal);
 function DashboardPage() {
   const [groups, setGroups] = useState([]);
   const [users, setUsers] = useState([]);
@@ -103,7 +108,41 @@ function DashboardPage() {
       setLoading(false);
     }
   }
-
+  const confirmAndDeleteGroup = async (groupId) => {
+    const result = await MySwal.fire({
+      title: "Are you sure?",
+      text: "This group will be permanently deleted.",
+      icon: "warning",
+      showCancelButton: true,
+      confirmButtonColor: "#d33",
+      cancelButtonColor: "#3085d6",
+      confirmButtonText: "Yes, delete it!",
+    });
+  
+    if (result.isConfirmed) {
+      try {
+        const response = await fetch(`http://localhost:8080/api/groups/${groupId}`, {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization": `Bearer ${JSON.parse(localStorage.getItem("authTokens"))}`,
+          },
+        });
+  
+        if (response.ok) {
+          setGroups(prev => prev.filter(group => group.id !== groupId));
+          Swal.fire("Deleted!", "Group has been deleted.", "success");
+        } else {
+          const errorText = await response.text();
+          throw new Error(errorText || "Failed to delete group.");
+        }
+      } catch (error) {
+        Swal.fire("Error", error.message, "error");
+      }
+    }
+  };
+  
+  
   const handleSelectGroup = (id) => {
     history.push(`/groups/${id}`);
   };
@@ -211,7 +250,13 @@ function DashboardPage() {
               <List sx={{ maxHeight: "300px", overflowY: "auto" }}>
                 {groups.length > 0 ? (
                   groups.map((group, index) => (
-                    <ListItem key={index} divider>
+                    <ListItem key={index} divider
+                    secondaryAction={
+                      <IconButton edge="end" onClick={() => confirmAndDeleteGroup(group.id)}>
+                        <DeleteIcon />
+                      </IconButton>
+                    }
+                  >
                       <ListItemText primary={group.name}
                         key={group.id} 
                         button
