@@ -1,11 +1,19 @@
 import { useParams, useHistory } from "react-router-dom";  
 import { useState, useEffect, useCallback } from "react";
+import { useContext } from "react";
+import AuthContext from "../../context/AuthContext";
 import { List, ListItemText, Box, Typography, CircularProgress, Paper, Avatar, Card, CardActionArea } from "@mui/material";
 import GroupIcon from "@mui/icons-material/Group";
 import GroupDetails from "./groupDetails";
 import NoGroupSelected from "./noGroupSelected";
+import DeleteIcon from "@mui/icons-material/Delete";
+import { IconButton } from "@mui/material"; 
+import Swal from "sweetalert2";
+import withReactContent from "sweetalert2-react-content";
 
+const MySwal = withReactContent(Swal);
 const Groups = () => {
+    const { confirmAndDeleteGroup } = useContext(AuthContext);
     const { groupId } = useParams(); // Get groupId from URL
     const history = useHistory();
     const [selectedGroup, setSelectedGroup] = useState(groupId || null);
@@ -36,6 +44,18 @@ const Groups = () => {
             setLoading(false);
         }
     }, [groupId]);
+    
+    const deletegroup = async (groupId) => {
+       
+        try {
+            const success = await confirmAndDeleteGroup(groupId);
+            if (success) {
+                setGroups(prev => prev.filter(group => group.id !== groupId));
+            }
+          } catch (error) {
+              throw new Error("Failed to delete group.");
+          }
+      };
 
     // Fetch groups on component mount
     useEffect(() => {
@@ -112,6 +132,13 @@ const Groups = () => {
                                             primary={group.name} 
                                             primaryTypographyProps={{ fontWeight: "bold", fontSize: "1rem" }}
                                         />
+                                         <IconButton
+                                    onClick={() => deletegroup(group.id)}
+                                    sx={{ ml: 1 }}
+                                    edge="end"
+                                    >
+                                    <DeleteIcon />
+                                    </IconButton>
                                     </CardActionArea>
                                 </Card>
                             ))
