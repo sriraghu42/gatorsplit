@@ -25,6 +25,7 @@ import CreateGroup from "./groups/CreateGroup";
 import { useHistory } from "react-router-dom";  
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
+import Tooltip from '@mui/material/Tooltip';
 
 const MySwal = withReactContent(Swal);
 function DashboardPage() {
@@ -233,9 +234,10 @@ function DashboardPage() {
                   groups.map((group, index) => (
                     <ListItem key={index} divider
                     secondaryAction={
-                      <IconButton edge="end" onClick={() => deletegroup(group.id)}>
-                        <DeleteIcon />
-                      </IconButton>
+                       <Tooltip title="Delete Group" arrow> <IconButton edge="end" onClick={() => deletegroup(group.id)}>
+                       <DeleteIcon />
+                     </IconButton> </Tooltip>
+                      
                     }
                   >
                       <ListItemText primary={group.name}
