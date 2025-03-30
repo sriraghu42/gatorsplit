@@ -10,6 +10,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import { IconButton } from "@mui/material"; 
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
+import Tooltip from '@mui/material/Tooltip';
 
 const MySwal = withReactContent(Swal);
 const Groups = () => {
@@ -132,13 +133,14 @@ const Groups = () => {
                                             primary={group.name} 
                                             primaryTypographyProps={{ fontWeight: "bold", fontSize: "1rem" }}
                                         />
-                                         <IconButton
+                                        <Tooltip title="Delete Group" arrow> <IconButton
                                     onClick={() => deletegroup(group.id)}
                                     sx={{ ml: 1 }}
                                     edge="end"
                                     >
                                     <DeleteIcon />
-                                    </IconButton>
+                                    </IconButton></Tooltip>
+                                        
                                     </CardActionArea>
                                 </Card>
                             ))

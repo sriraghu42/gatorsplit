@@ -9,6 +9,14 @@ import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import PaymentsIcon from "@mui/icons-material/Payments";
 import DoneAllIcon from "@mui/icons-material/DoneAll";
 import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
+import { IconButton } from "@mui/material";
+import { useContext } from "react";
+import DeleteIcon from "@mui/icons-material/Delete";
+import Swal from "sweetalert2";
+import withReactContent from "sweetalert2-react-content";
+import Tooltip from '@mui/material/Tooltip';
+
+const MySwal = withReactContent(Swal);
 
 const GroupDetails = ({ groupId, groupName }) => {
     const userid = JSON.parse(localStorage.getItem("userid")); // Get current user ID
@@ -56,6 +64,44 @@ const GroupDetails = ({ groupId, groupName }) => {
             // console.error("Error fetching expenses:", error);
         }
     }, [groupId]);
+
+    const handleDelete = async (expenseId) => {
+        const result = await MySwal.fire({
+          title: "Are you sure?",
+          text: "This expense will be permanently deleted.",
+          icon: "warning",
+          showCancelButton: true,
+          confirmButtonColor: "#d33",
+          cancelButtonColor: "#3085d6",
+          confirmButtonText: "Yes, delete it!",
+        });
+      
+        if (result.isConfirmed) {
+          try {
+            const response = await fetch(`http://localhost:8080/api/expenses/${expenseId}`, {
+              method: "DELETE",
+              headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${JSON.parse(localStorage.getItem("authTokens"))}`,
+              },
+            });
+      
+            if (response.ok) {
+              Swal.fire("Deleted!", "Expense has been deleted.", "success");
+              setExpenses(prev => prev.filter(expenses => expenses.id !== expenseId));
+            } else {
+              const errorText = await response.text();
+              throw new Error(errorText || "Failed to delete expense.");
+            }
+          } catch (error) {
+            Swal.fire("Error", error.message, "error");
+
+          }
+        }
+      
+      };
+      
+    
 
     useEffect(() => {
         if (groupId) {
@@ -163,6 +209,15 @@ const GroupDetails = ({ groupId, groupName }) => {
                                                     sx={{ fontSize: "0.9rem", fontWeight: "bold" }}
                                                 />
                                             )}
+                                            <Tooltip title="Delete expense" arrow>
+                                                    <IconButton
+                                                        aria-label="delete"
+                                                        color="error"
+                                                        onClick={() => handleDelete(expense.id)} // or handleDelete
+                                                    >
+                                                        <DeleteIcon />
+                                                    </IconButton>
+                                                    </Tooltip>
                                         </ListItem>
                                     );
                                 })
