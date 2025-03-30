@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from "react";
 import { IconButton } from "@mui/material";
+import { useContext } from "react";
 import DeleteIcon from "@mui/icons-material/Delete";
+import AuthContext from "../context/AuthContext";
 import {
   Box,
   Button,
@@ -26,6 +28,7 @@ import withReactContent from "sweetalert2-react-content";
 
 const MySwal = withReactContent(Swal);
 function DashboardPage() {
+  const { confirmAndDeleteGroup } = useContext(AuthContext);
   const [groups, setGroups] = useState([]);
   const [users, setUsers] = useState([]);
   const [balances, setBalances] = useState(null);
@@ -108,38 +111,16 @@ function DashboardPage() {
       setLoading(false);
     }
   }
-  const confirmAndDeleteGroup = async (groupId) => {
-    const result = await MySwal.fire({
-      title: "Are you sure?",
-      text: "This group will be permanently deleted.",
-      icon: "warning",
-      showCancelButton: true,
-      confirmButtonColor: "#d33",
-      cancelButtonColor: "#3085d6",
-      confirmButtonText: "Yes, delete it!",
-    });
   
-    if (result.isConfirmed) {
-      try {
-        const response = await fetch(`http://localhost:8080/api/groups/${groupId}`, {
-          method: "DELETE",
-          headers: {
-            "Content-Type": "application/json",
-            "Authorization": `Bearer ${JSON.parse(localStorage.getItem("authTokens"))}`,
-          },
-        });
-  
-        if (response.ok) {
-          setGroups(prev => prev.filter(group => group.id !== groupId));
-          Swal.fire("Deleted!", "Group has been deleted.", "success");
-        } else {
-          const errorText = await response.text();
-          throw new Error(errorText || "Failed to delete group.");
+  const deletegroup = async (groupId) => {
+    try {
+        const success = await confirmAndDeleteGroup(groupId);
+        if (success) {
+            setGroups(prev => prev.filter(group => group.id !== groupId));
         }
       } catch (error) {
-        Swal.fire("Error", error.message, "error");
+          throw new Error("Failed to delete group.");
       }
-    }
   };
   
   
@@ -252,7 +233,7 @@ function DashboardPage() {
                   groups.map((group, index) => (
                     <ListItem key={index} divider
                     secondaryAction={
-                      <IconButton edge="end" onClick={() => confirmAndDeleteGroup(group.id)}>
+                      <IconButton edge="end" onClick={() => deletegroup(group.id)}>
                         <DeleteIcon />
                       </IconButton>
                     }
