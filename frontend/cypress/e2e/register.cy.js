@@ -15,7 +15,7 @@ describe("Register Page", () => {
         body: { message: "Account created successfully!" },
       }).as("registerUser");
   
-      cy.get("input[name='username']").type("chand");
+      cy.get("input[name='username']").type("user-1-test");
       cy.get("input[name='email']").type("chadnana@gmail.com");
       cy.get("input[name='password']").type("haha");
       cy.wait(1500);

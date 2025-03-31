@@ -71,8 +71,8 @@ describe("Login Page", () => {
     cy.intercept("POST", "/login").as("loginUser"); // Ensure correct endpoint
 
     // Input valid credentials
-    cy.get("input[name='email']").type("chand"); // Using username instead of email
-    cy.get("input[name='password']").type("haha");
+    cy.get("input[name='email']").type("chandana"); // Using username instead of email
+    cy.get("input[name='password']").type("chandana");
     cy.wait(600)
     cy.get("button[type='submit']").click();
 
