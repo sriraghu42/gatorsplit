@@ -1,7 +1,7 @@
 import { useEffect, useState, useCallback } from "react";
-import { 
-    Box, Typography, Paper, List, ListItem, ListItemText, Grid, Button, 
-    Chip, Divider 
+import {
+    Box, Typography, Paper, List, ListItem, ListItemText, Grid, Button,
+    Chip, Divider
 } from "@mui/material";
 import AddExpenseModal from "../AddExpensesModal";
 import PersonIcon from "@mui/icons-material/Person";
@@ -9,6 +9,15 @@ import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import PaymentsIcon from "@mui/icons-material/Payments";
 import DoneAllIcon from "@mui/icons-material/DoneAll";
 import AttachMoneyIcon from "@mui/icons-material/AttachMoney";
+import { IconButton } from "@mui/material";
+import { useContext } from "react";
+import DeleteIcon from "@mui/icons-material/Delete";
+import Swal from "sweetalert2";
+import withReactContent from "sweetalert2-react-content";
+import Tooltip from '@mui/material/Tooltip';
+import AddMemberModal from "./AddMemberModal";
+const MySwal = withReactContent(Swal);
+
 
 const GroupDetails = ({ groupId, groupName }) => {
     const userid = JSON.parse(localStorage.getItem("userid")); // Get current user ID
@@ -16,11 +25,13 @@ const GroupDetails = ({ groupId, groupName }) => {
     const [loading, setLoading] = useState(true);
     const [expenses, setExpenses] = useState([]);
     const [isExpenseModalOpen, setExpenseModalOpen] = useState(false);
+    const [isAddMemberModalOpen, setAddMemberModalOpen] = useState(false);
+
 
     // Function to fetch group details
     const getUsersOfAGroup = useCallback(async () => {
         try {
-            const response = await fetch(`http://localhost:8080/api/groups/${groupId}/balances`, {
+            const response = await fetch(`http://localhost:8080/api/groups/${groupId}/users`, {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",
@@ -30,7 +41,6 @@ const GroupDetails = ({ groupId, groupName }) => {
 
             const groupData = await response.json();
             setGroup(groupData);
-            // console.log("Group Data:", groupData);
         } catch (error) {
             // console.error("Error fetching group data:", error);
         } finally {
@@ -51,11 +61,46 @@ const GroupDetails = ({ groupId, groupName }) => {
 
             const expensesData = await response.json();
             setExpenses(expensesData);
-            // console.log("Expenses Data:", expensesData);
         } catch (error) {
             // console.error("Error fetching expenses:", error);
         }
     }, [groupId]);
+
+    const handleDelete = async (expenseId) => {
+        const result = await MySwal.fire({
+            title: "Are you sure?",
+            text: "This expense will be permanently deleted.",
+            icon: "warning",
+            showCancelButton: true,
+            confirmButtonColor: "#d33",
+            cancelButtonColor: "#3085d6",
+            confirmButtonText: "Yes, delete it!",
+        });
+
+        if (result.isConfirmed) {
+            try {
+                const response = await fetch(`http://localhost:8080/api/expenses/${expenseId}`, {
+                    method: "DELETE",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${JSON.parse(localStorage.getItem("authTokens"))}`,
+                    },
+                });
+
+                if (response.ok) {
+                    Swal.fire("Deleted!", "Expense has been deleted.", "success");
+                    setExpenses(prev => prev.filter(expenses => expenses.id !== expenseId));
+                } else {
+                    const errorText = await response.text();
+                    throw new Error(errorText || "Failed to delete expense.");
+                }
+            } catch (error) {
+                Swal.fire("Error", error.message, "error");
+
+            }
+        }
+
+    };
 
     useEffect(() => {
         if (groupId) {
@@ -79,8 +124,8 @@ const GroupDetails = ({ groupId, groupName }) => {
                     <Typography variant="h4" fontWeight="bold" textAlign="center" mb={2} color="black">
                         {groupName}
                     </Typography>
-                    <Paper 
-                        elevation={3} 
+                    <Paper
+                        elevation={3}
                         sx={{ p: 3, flexGrow: 1, display: "flex", flexDirection: "column", overflow: "hidden", borderRadius: 3 }}
                     >
                         {/* Activity Header with Buttons */}
@@ -89,18 +134,18 @@ const GroupDetails = ({ groupId, groupName }) => {
                                 Expenses
                             </Typography>
                             <Box sx={{ display: "flex", gap: 2 }}>
-                                <Button 
-                                    variant="contained" 
-                                    color="primary" 
+                                <Button
+                                    variant="contained"
+                                    color="primary"
                                     startIcon={<PaymentsIcon />}
                                     sx={{ borderRadius: 2 }}
                                     onClick={() => setExpenseModalOpen(true)} // Open modal
                                 >
                                     Add Expense
                                 </Button>
-                                <Button 
-                                    variant="contained" 
-                                    color="secondary" 
+                                <Button
+                                    variant="contained"
+                                    color="secondary"
                                     startIcon={<DoneAllIcon />}
                                     sx={{ borderRadius: 2 }}
                                 >
@@ -131,14 +176,14 @@ const GroupDetails = ({ groupId, groupName }) => {
                                     if (expense.paid_by == userid) {
                                         activityText = (
                                             <Typography variant="body2" sx={{ fontSize: "1rem" }}>
-                                                You paid <b>${expense.amount}</b> for <b>{expense.title}</b>. 
+                                                You paid <b>${expense.amount}</b> for <b>{expense.title}</b>.
                                                 You are owed <b>${amountYouAreOwed}</b>.
                                             </Typography>
                                         );
                                     } else {
                                         activityText = (
                                             <Typography variant="body2" sx={{ fontSize: "1rem" }}>
-                                                <b>{displayPaidBy}</b> paid <b>${expense.amount}</b> for <b>{expense.title}</b>. 
+                                                <b>{displayPaidBy}</b> paid <b>${expense.amount}</b> for <b>{expense.title}</b>.
                                                 You owe <b>${amountOwed}</b>.
                                             </Typography>
                                         );
@@ -163,6 +208,15 @@ const GroupDetails = ({ groupId, groupName }) => {
                                                     sx={{ fontSize: "0.9rem", fontWeight: "bold" }}
                                                 />
                                             )}
+                                            <Tooltip title="Delete expense" arrow>
+                                                <IconButton
+                                                    aria-label="delete"
+                                                    color="error"
+                                                    onClick={() => handleDelete(expense.id)} // or handleDelete
+                                                >
+                                                    <DeleteIcon />
+                                                </IconButton>
+                                            </Tooltip>
                                         </ListItem>
                                     );
                                 })
@@ -177,8 +231,8 @@ const GroupDetails = ({ groupId, groupName }) => {
 
                 {/* Right Section - Members */}
                 <Grid item xs={3} sx={{ display: "flex", flexDirection: "column", height: "100%" }}>
-                    <Paper 
-                        elevation={3} 
+                    <Paper
+                        elevation={3}
                         sx={{ p: 3, flexGrow: 1, display: "flex", flexDirection: "column", borderRadius: 3 }}
                     >
                         <Typography variant="h6" fontWeight="bold" mb={2}>
@@ -186,8 +240,8 @@ const GroupDetails = ({ groupId, groupName }) => {
                         </Typography>
 
                         <List sx={{ flexGrow: 1, overflowY: "auto", maxHeight: "60vh" }}>
-                            {group?.length > 0 ? (
-                                group.map((user, index) => (
+                            {group?.users?.length > 0 ? (
+                                group?.users?.map((user, index) => (
                                     <ListItem key={index} sx={{ display: "flex", alignItems: "center", p: 0.5 }}>
                                         <PersonIcon sx={{ mr: 1, color: "gray" }} />
                                         <ListItemText primary={user.username} />
@@ -200,11 +254,13 @@ const GroupDetails = ({ groupId, groupName }) => {
                             )}
                         </List>
                         <Box sx={{ mt: "auto", pt: 2, display: "flex", justifyContent: "center" }}>
-                            <Button 
-                                variant="outlined" 
-                                color="primary" 
+                            <Button
+                                variant="outlined"
+                                color="primary"
                                 startIcon={<AddCircleOutlineIcon />}
                                 sx={{ borderRadius: 2, width: "100%" }}
+                                onClick={() => setAddMemberModalOpen(true)}
+
                             >
                                 Add Member
                             </Button>
@@ -214,7 +270,16 @@ const GroupDetails = ({ groupId, groupName }) => {
             </Grid>
 
             {/* Add Expense Modal */}
-            <AddExpenseModal open={isExpenseModalOpen} onClose={() => setExpenseModalOpen(false)} groupId={groupId} members={group?.members} currentUser={userid} fetchExpenses={fetchExpenses} />
+            <AddMemberModal
+                open={isAddMemberModalOpen}
+                onClose={() => setAddMemberModalOpen(false)}
+                groupName={groupName}
+                groupUsers={group.users}
+                groupId={groupId}
+                onUsersAdded={getUsersOfAGroup}
+            />
+
+            <AddExpenseModal open={isExpenseModalOpen} onClose={() => setExpenseModalOpen(false)} groupId={groupId} members={group?.users} currentUser={userid} fetchExpenses={fetchExpenses} />
         </Box>
     );
 };
