@@ -406,4 +406,271 @@ Removes the specified thread from the system, along with any expenses and expens
 ```
 **Errors:**
 
-**500 Internal Server Error** – Error deleting the thread or its related 
+**500 Internal Server Error** – Error deleting the thread or its related  
+
+## Unit tests
+
+## Group Tests (group_test.go)
+
+## 1.  TestUpdateGroupMembers
+
+**Purpose**:  
+
+To verify that updating group members works correctly by adding new members while ignoring duplicates.
+
+   **Implementation Details**:  
+   - A mock database is initialized using `database.SetupMockDB()`.
+   - A group is created with an initial member.
+   - A PUT request is sent to the `/groups/{group_id}/members` endpoint with a JSON payload containing an array of user IDs (including one that already exists and new ones).
+   - The response is captured using `httptest.NewRecorder()`.
+   - The test checks that the response code is 200 OK and that the returned message confirms that new members have been added.
+   - It then queries the database to ensure that the group contains the correct unique set of members.
+
+   **Expected Outcome**:  
+   - If the update is successful, the status code should be 200 OK.
+   - The response should include the message:  
+
+     ```
+
+     {
+       "message": "New members added successfully"
+     }
+
+     ```
+- The group should contain exactly the new set of unique members (e.g., if 
+the payload is `[1, 2, 3]` with user 1 already present, the final group should 
+have users 1, 2, and 3).
+
+## 2. TestDeleteGroup
+
+   **Purpose**:  
+
+   To verify that a group and all its associated records (such as expenses, threads, and group users) are deleted successfully.
+
+   **Implementation Details**:  
+   - A mock database is initialized using `database.SetupMockDB()`.
+   - A group is created and inserted into the database.
+   - A DELETE request is sent to the `/groups/{group_id}` endpoint with the correct group ID.
+   - The response is captured using `httptest.NewRecorder()`.
+   - The test checks that the response code is 200 OK and that the returned message confirms the group deletion.
+   - The database is queried to ensure that the group and its related records no longer exist.
+
+   **Expected Outcome**:  
+   - If deletion is successful, the status code should be 200 OK.
+   - The response should include the message: 
+ 
+     ```
+
+     {
+       "message": "Group deleted successfully"
+     }
+
+     ```
+   - The group and its associated records should be completely removed from the database.
+
+## Expense Tests (expense_test.go)
+
+## 3.1. TestCreateExpense
+
+   **Purpose**: 
+ 
+   To verify that a group expense is created successfully by sending a POST request with valid details including the expense title, amount, the payer's ID, the group ID, and the user IDs sharing the expense.
+
+   **Implementation Details**:  
+   - A mock database is initialized using `database.SetupMockDB()` (via `TestMain`), ensuring all tests use an in‑memory SQLite mock DB.  
+   - Test data is inserted: a group is created, and two users (e.g., Alice and Bob) are added to the database.  
+   - A sample request payload is constructed with keys `"title"`, `"amount"`, `"paid_by"`, `"group_id"`, and `"split_with"`.  
+   - A POST request is sent to the `/expenses` endpoint using `http.NewRequest`.  
+   - The response is captured using `httptest.NewRecorder()`, and the JSON response is compared against the expected output.
+
+   **Expected Outcome**:  
+   - If the expense is created successfully, the status code should be **201 Created**.  
+   - The response should include the message:
+  
+     ```
+
+     {
+       "message": "Expense added successfully"
+     }
+
+     ```  
+   - Any deviation will be logged as an error.
+
+## 3.2.TestCreatePersonalExpense
+
+   **Purpose**:
+  
+   To verify that a personal expense is created successfully by sending a POST request with valid details including the expense title, amount, the payer's ID, and an array of user IDs sharing the expense.
+
+   **Implementation Details**:  
+   - The mock database is initialized using `database.SetupMockDB()`, ensuring a clean state for the test.  
+   - Two test users (e.g., Charlie and David) are created in the database.  
+   - A sample request payload is prepared with keys `"title"`, `"amount"`, `"paid_by"`, and `"split_with"`.  
+   - A POST request is sent to the `/personal-expense` endpoint using `http.NewRequest`.  
+   - The response is captured using `httptest.NewRecorder()`, and the JSON response is compared to the expected output.
+
+   **Expected Outcome**:  
+   - If the personal expense is created successfully, the status code should be **201 Created**.  
+   - The response should include the message:  
+     ```
+
+     {
+       "message": "Personal expense added successfully"
+     }
+
+     ```  
+   - Any mismatch will be logged as an error.
+
+## 3.3. TestDeleteExpense
+
+   **Purpose**: 
+ 
+   To verify that an expense and all its associated expense participant records are deleted successfully by sending a DELETE request with a valid expense ID.
+
+   **Implementation Details**:  
+   - The mock database is initialized using `database.SetupMockDB()` to ensure a clean state.  
+   - Test data is inserted by creating an expense and its associated expense participant record(s).  
+   - A DELETE request is sent to the `/expenses/{expense_id}` endpoint using `http.NewRequest`, where `{expense_id}` corresponds to the ID of the created expense.  
+   - The response is captured using `httptest.NewRecorder()`, and the JSON response is compared to the expected output.
+
+   **Expected Outcome**:  
+   - If the expense is deleted successfully, the status code should be **200 OK**.  
+   - The response should include the message: 
+ 
+     ```
+
+     {
+       "message": "Expense deleted successfully"
+     }
+
+     ```  
+   - Any deviation (e.g., expense not found or deletion failure) will result in a logged error.
+
+
+## Thread Tests (thread_test.go)
+
+## 4 TestCreateThread
+
+   **Purpose**: 
+ 
+   To verify that a thread is created successfully by sending a POST request with valid details (thread name, group ID, and creator's user ID).
+
+   **Implementation Details**:  
+
+   - A mock database is initialized using `database.SetupMockDB()`.  
+   - A group record is created along with a user (with a unique email).  
+   - A sample request payload is constructed with keys `"name"`, `"group_id"`, and `"created_by"`.  
+   - A POST request is sent to the `/threads` endpoint using `http.NewRequest`.  
+   - The response is captured using `httptest.NewRecorder()`, and the JSON response is compared against the expected output.  
+   - The database is queried to confirm that the thread was successfully created.
+
+   **Expected Outcome**:
+  
+   - If the thread is created successfully, the status code should be **201 Created**.  
+   - The response should include the message: 
+ 
+     ```
+
+     {
+       "message": "Thread created successfully"
+     }
+
+     ```  
+   - The thread record should exist in the database.
+
+---
+
+## 5 TestGetThreadsByGroup
+
+   **Purpose**: 
+ 
+   To verify that all threads within a specific group are retrieved correctly.
+
+   **Implementation Details**:  
+
+   - A mock database is initialized using `database.SetupMockDB()`.  
+   - A group is created and two thread records associated with that group are inserted into the database.  
+   - A GET request is sent to the `/threads/group/{group_id}` endpoint using `http.NewRequest`, with the `group_id` set as a path parameter.  
+   - The response is captured using `httptest.NewRecorder()`, and the JSON response is decoded to an array of thread objects.
+
+   **Expected Outcome**: 
+ 
+   - If retrieval is successful, the status code should be **200 OK**.  
+   - The response should be an array of threads, with a count equal to the number of threads created (in this case, 2).
+
+---
+
+## 6 TestGetUserThreadsWithBalances
+
+   **Purpose**: 
+ 
+   To verify that the API retrieves all threads a user is involved in, along with the total balance for each thread.
+
+   **Implementation Details**: 
+ 
+   - A mock database is initialized using `database.SetupMockDB()`.  
+   - A user is created (with a unique email) in the database.  
+   - A thread is created, and an expense is added to that thread with the user as the payer.  
+   - An expense participant record is created for that user with a specified amount owed.  
+   - A GET request is sent to the `/threads/user/{user_id}/balances` endpoint using `http.NewRequest`, with the `user_id` set as a path parameter.  
+   - The response is captured using `httptest.NewRecorder()`, and the JSON response is decoded to verify the thread and its total balance.
+
+   **Expected Outcome**:
+  
+   - If the retrieval is successful, the status code should be **200 OK**.  
+   - The response should include a thread with the correct `total_balance` (e.g., 100 if that is the sum of expense amounts).
+
+---
+
+## 7  TestGetThreadBalances
+
+   **Purpose**: 
+ 
+   To verify that the API retrieves detailed balance information for all users within a specific thread.
+
+   **Implementation Details**:
+  
+   - A mock database is initialized using `database.SetupMockDB()`.  
+   - Two users (each with unique emails) are created in the database.  
+   - A thread is created, and an expense is added in that thread with one of the users as the payer.  
+   - Expense participant records are created for both users (e.g., each owing 50 if the total expense is 100).  
+   - A GET request is sent to the `/threads/{thread_id}/balances` endpoint using `http.NewRequest`, with the `thread_id` set as a path parameter.  
+   - The response is captured using `httptest.NewRecorder()`, and the JSON response is decoded to verify that balance details for both users are correct (e.g., one user with a net balance of 50 and the other with -50).
+
+   **Expected Outcome**: 
+ 
+   - If the retrieval is successful, the status code should be **200 OK**.  
+   - The response should be an array of balance records with the correct details for each user.
+
+---
+
+## 8.TestDeleteThread
+
+   **Purpose**: 
+ 
+   To verify that a thread and all its associated records (expenses and expense participants) are deleted successfully.
+
+   **Implementation Details**:  
+
+   - A mock database is initialized using `database.SetupMockDB()`.  
+   - A thread is created, and an expense is added under the thread along with an expense participant record.  
+   - A DELETE request is sent to the `/threads/{thread_id}` endpoint using `http.NewRequest`, with the `thread_id` set as a path parameter.  
+   - The response is captured using `httptest.NewRecorder()`, and the JSON response is compared to the expected output.  
+   - The database is queried to confirm that the thread, its expenses, and expense participants have been deleted.
+
+   **Expected Outcome**:  
+
+   - If deletion is successful, the status code should be **200 OK**.  
+   - The response should include the message:  
+
+     ```
+
+     {
+       "message": "Thread deleted successfully"
+     }
+
+     ```  
+   - The thread and its associated records should be removed from the database.
+
+
+
