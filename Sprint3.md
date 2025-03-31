@@ -406,4 +406,4 @@ Removes the specified thread from the system, along with any expenses and expens
 ```
 **Errors:**
 
-**500 Internal Server Error ** – Error deleting the thread or its related 
+**500 Internal Server Error** – Error deleting the thread or its related 
