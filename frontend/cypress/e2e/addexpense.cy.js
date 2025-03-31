@@ -2,13 +2,13 @@
 
 describe("Add Expense Flow", () => {
     it("logs in, navigates to a group, opens the add expense modal, fills sample data, and submits an expense", () => {
-        const email = "chand"; // Replace with valid email
-        const password = "haha"; // Replace with valid password
+        const email = "chandana"; // Replace with valid email
+        const password = "chandana"; // Replace with valid password
         const groupId = 9; // Adjust as needed
         const expenseTitle = "Dinner";
         const expenseAmount = "50";
-        const payer = "chand"; // Adjust based on available users
-        const splitUsers = ["chand", "varun"]; // Adjust as needed
+        const payer = "chandana"; // Adjust based on available users
+        const splitUsers = ["chandana", "varun"]; // Adjust as needed
 
         cy.visit("/login");
 
