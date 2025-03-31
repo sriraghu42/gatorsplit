@@ -1,3 +1,72 @@
+# Sprint3
+
+## User Stories
+[View User Stories]
+
+## Issues Overview
+•⁠  ⁠*Planned Issues:* [View Here]
+•⁠  ⁠*Successfully Completed Issues:* [View Here]
+•⁠  ⁠*Issues Not Completed:* [View Here]
+
+## Demo Video: 
+
+## Frontend Functionality 
+The frontend allows users to manage groups, expenses, and threads with a smooth UI and responsive interactions.
+
+### Group Management:
+- View a list of joined groups.
+- Create new groups by selecting users.
+- Delete existing groups with confirmation.
+- Edit group members while avoiding duplicates.
+
+### Expense Management:
+- View all expenses within a group, including payer and amount.
+- Add new expenses with title, amount, and user splits.
+- Delete individual expenses via a confirmation modal.
+
+### Responsive UI Feedback:
+- SweetAlert modals for confirmations and errors.
+- Loading indicators and success/error messages for API responses.
+
+### Error Handling & Edge Cases:
+- Empty group or expense lists display friendly messages.
+- Failed actions (e.g., deletion errors) show alerts without breaking the UI.
+
+## Testing
+
+### Jest Unit Testing
+
+- deleteExpense.test.js – Tests deleting an expense and handling success/error responses.
+- ConfirmAndDeleteGroup.test.js – Verifies group deletion flow with confirmation modal.
+- AddMembersToTheGroup.test.js – Ensures members can be added to a group without duplicates.
+- CreateGroup.test.js – Tests group creation form input, submission, and response handling.
+
+### Cypress Testing
+
+#### 1. deleteeGroup.cy.js
+
+- This test logs in a user, sets the received JWT token in localStorage, and performs a secure delete operation on a group named "Spring break Trip". It ensures only authenticated users can access and perform deletions.
+
+#### 2. deleteGroupPage.cy.js 
+
+- The test simulates a complete user journey—logging in, navigating to the groups page, and deleting a specific group (Group1). It ensures the delete button is visible, clicks it, and confirms the deletion via SweetAlert, verifying the group's removal from the UI.
+
+#### 3. deleteexpense.cy.js
+
+- This test ensures that a logged-in user can successfully delete an expense from a group. It confirms the backend deletion via the intercepted DELETE /api/expenses/* call and verifies that the expense is removed from the UI, maintaining consistency between the frontend and backend.
+
+
+#### 4. editMembersGroup.cy.js
+
+- Simulates editing group members by adding new users to an existing group and confirms the UI reflects updated member list after API success.
+- Validates that existing members are not duplicated when added again and ensures success message is shown only for new additions.
+
+#### 5. createGroupFromPage.cy.js
+
+- Verifies that clicking the "Create Group" button on the group listing page opens the group creation modal with input fields and user selection options.
+
+- Simulates filling in group name and selecting members, submits the form, intercepts the POST /api/groups call, and confirms the new group appears in the list after successful creation.
+
 ## Backend-API's
 
 These endpoints let users start new discussion threads in groups, retrieve all threads within a group, and view a consolidated summary of their expense balances across those threads.
