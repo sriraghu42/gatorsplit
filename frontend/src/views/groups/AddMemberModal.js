@@ -34,7 +34,8 @@ const AddMemberModal = ({ open, onClose, groupName, groupUsers, groupId, onUsers
                 "Content-Type": "application/json",
                 "Authorization": `Bearer ${JSON.parse(localStorage.getItem("authTokens"))}`
             },
-            body: JSON.stringify(userIds)
+           
+            body: JSON.stringify({ user_ids: userIds })
         });
 
         onUsersAdded(); // Refresh group user list
