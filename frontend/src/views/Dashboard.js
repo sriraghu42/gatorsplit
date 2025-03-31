@@ -229,12 +229,12 @@ function DashboardPage() {
               <Typography variant="h6" fontWeight="bold" gutterBottom>
                 Groups
               </Typography>
-              <List sx={{ maxHeight: "300px", overflowY: "auto" }}>
+              <List className="group-list" sx={{ maxHeight: "300px", overflowY: "auto" }}>
                 {groups.length > 0 ? (
                   groups.map((group, index) => (
                     <ListItem key={index} divider
                     secondaryAction={
-                       <Tooltip title="Delete Group" arrow> <IconButton edge="end" onClick={() => deletegroup(group.id)}>
+                       <Tooltip title="Delete Group" arrow> <IconButton edge="end" onClick={() => deletegroup(group.id)} aria-label="Delete Group">
                        <DeleteIcon />
                      </IconButton> </Tooltip>
                       

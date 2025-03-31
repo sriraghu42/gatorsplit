@@ -134,9 +134,10 @@ const Groups = () => {
                                             primaryTypographyProps={{ fontWeight: "bold", fontSize: "1rem" }}
                                         />
                                         <Tooltip title="Delete Group" arrow> <IconButton
-                                    onClick={() => deletegroup(group.id)}
+                                    onClick={(e) => {e.stopPropagation(); deletegroup(group.id)}}
                                     sx={{ ml: 1 }}
                                     edge="end"
+                                    aria-label="Delete Group"
                                     >
                                     <DeleteIcon />
                                     </IconButton></Tooltip>
