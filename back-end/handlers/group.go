@@ -6,6 +6,7 @@ import (
 	"go-auth-app/database"
 	"go-auth-app/models"
 	"net/http"
+	"strconv"
 
 	"github.com/gorilla/mux"
 )
@@ -94,6 +95,41 @@ func CreateGroup(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(map[string]string{
 		"message": "Group created successfully",
 	})
+}
+
+func UpdateGroupMembers(w http.ResponseWriter, r *http.Request) {
+	var req struct {
+		UserIDs []uint `json:"user_ids"`
+	}
+
+	groupIDStr := mux.Vars(r)["group_id"]
+	groupID, err := strconv.Atoi(groupIDStr)
+	if err != nil {
+		http.Error(w, "Invalid group ID", http.StatusBadRequest)
+		return
+	}
+
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "Invalid request body", http.StatusBadRequest)
+		return
+	}
+
+	for _, userID := range req.UserIDs {
+		var count int64
+		database.DB.Model(&models.GroupUser{}).
+			Where("group_id = ? AND user_id = ?", groupID, userID).
+			Count(&count)
+
+		if count == 0 {
+			newMember := models.GroupUser{
+				GroupID: uint(groupID),
+				UserID:  userID,
+			}
+			database.DB.Create(&newMember)
+		}
+	}
+
+	json.NewEncoder(w).Encode(map[string]string{"message": "New members added successfully"})
 }
 
 func GetUserGroups(w http.ResponseWriter, r *http.Request) {
