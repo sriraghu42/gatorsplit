@@ -1,6 +1,6 @@
 ## Backend-API's
 
-These API's are designed to manage user authentication, track expenses, and provide dashboard functionalities for financial management. These enables users to register, log in, manage personal and group expenses, and track balances efficiently. These API follows RESTful principles and requires authentication for protected endpoints.
+These endpoints let users start new discussion threads in groups, retrieve all threads within a group, and view a consolidated summary of their expense balances across those threads.
 
 
 ## Group Endpoints (group.go)
