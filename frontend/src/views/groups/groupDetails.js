@@ -17,6 +17,7 @@ import withReactContent from "sweetalert2-react-content";
 import Tooltip from '@mui/material/Tooltip';
 
 const MySwal = withReactContent(Swal);
+import AddMemberModal from "./AddMemberModal";
 
 const GroupDetails = ({ groupId, groupName }) => {
     const userid = JSON.parse(localStorage.getItem("userid")); // Get current user ID
@@ -24,11 +25,13 @@ const GroupDetails = ({ groupId, groupName }) => {
     const [loading, setLoading] = useState(true);
     const [expenses, setExpenses] = useState([]);
     const [isExpenseModalOpen, setExpenseModalOpen] = useState(false);
+    const [isAddMemberModalOpen, setAddMemberModalOpen] = useState(false);
+
 
     // Function to fetch group details
     const getUsersOfAGroup = useCallback(async () => {
         try {
-            const response = await fetch(`http://localhost:8080/api/groups/${groupId}/balances`, {
+            const response = await fetch(`http://localhost:8080/api/groups/${groupId}/users`, {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",
@@ -38,7 +41,6 @@ const GroupDetails = ({ groupId, groupName }) => {
 
             const groupData = await response.json();
             setGroup(groupData);
-            // console.log("Group Data:", groupData);
         } catch (error) {
             // console.error("Error fetching group data:", error);
         } finally {
@@ -59,7 +61,6 @@ const GroupDetails = ({ groupId, groupName }) => {
 
             const expensesData = await response.json();
             setExpenses(expensesData);
-            // console.log("Expenses Data:", expensesData);
         } catch (error) {
             // console.error("Error fetching expenses:", error);
         }
@@ -241,8 +242,8 @@ const GroupDetails = ({ groupId, groupName }) => {
                         </Typography>
 
                         <List sx={{ flexGrow: 1, overflowY: "auto", maxHeight: "60vh" }}>
-                            {group?.length > 0 ? (
-                                group.map((user, index) => (
+                            {group?.users?.length > 0 ? (
+                                group?.users?.map((user, index) => (
                                     <ListItem key={index} sx={{ display: "flex", alignItems: "center", p: 0.5 }}>
                                         <PersonIcon sx={{ mr: 1, color: "gray" }} />
                                         <ListItemText primary={user.username} />
@@ -260,6 +261,8 @@ const GroupDetails = ({ groupId, groupName }) => {
                                 color="primary" 
                                 startIcon={<AddCircleOutlineIcon />}
                                 sx={{ borderRadius: 2, width: "100%" }}
+                                onClick={() => setAddMemberModalOpen(true)}
+
                             >
                                 Add Member
                             </Button>
@@ -269,7 +272,16 @@ const GroupDetails = ({ groupId, groupName }) => {
             </Grid>
 
             {/* Add Expense Modal */}
-            <AddExpenseModal open={isExpenseModalOpen} onClose={() => setExpenseModalOpen(false)} groupId={groupId} members={group?.members} currentUser={userid} fetchExpenses={fetchExpenses} />
+            <AddMemberModal
+    open={isAddMemberModalOpen}
+    onClose={() => setAddMemberModalOpen(false)}
+    groupName={groupName}
+    groupUsers={group.users}
+    groupId={groupId}
+    onUsersAdded={getUsersOfAGroup}
+/>
+
+            <AddExpenseModal open={isExpenseModalOpen} onClose={() => setExpenseModalOpen(false)} groupId={groupId} members={group?.users} currentUser={userid} fetchExpenses={fetchExpenses} />
         </Box>
     );
 };
