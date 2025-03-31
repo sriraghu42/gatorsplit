@@ -15,9 +15,9 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 import Tooltip from '@mui/material/Tooltip';
-
-const MySwal = withReactContent(Swal);
 import AddMemberModal from "./AddMemberModal";
+const MySwal = withReactContent(Swal);
+
 
 const GroupDetails = ({ groupId, groupName }) => {
     const userid = JSON.parse(localStorage.getItem("userid")); // Get current user ID
