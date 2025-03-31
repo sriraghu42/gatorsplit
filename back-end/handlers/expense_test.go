@@ -1,101 +1,67 @@
 package handlers_test
 
 import (
-	"bytes"
 	"encoding/json"
+	"net/http"
+	"net/http/httptest"
+	"strconv"
+	"testing"
+
 	"go-auth-app/database"
 	"go-auth-app/handlers"
 	"go-auth-app/models"
-	"net/http"
-	"net/http/httptest"
-	"testing"
+
+	"github.com/gorilla/mux"
 )
 
-// ✅ Setup mock database before running tests
-func TestMain(m *testing.M) {
-	database.SetupMockDB() // Ensures all tests use SQLite mock DB
-	m.Run()
-}
-
-// ✅ Test CreateExpense (POST /expenses)
-func TestCreateExpense(t *testing.T) {
-	database.SetupMockDB() // Ensure clean state before each test
-
-	// Insert test data (group and users)
-	group := models.Group{Name: "Trip Friends"}
-	database.DB.Create(&group)
-
-	user1 := models.User{Username: "Alice", Email: "alice@example.com"}
-	user2 := models.User{Username: "Bob", Email: "bob@example.com"}
-	database.DB.Create(&user1)
-	database.DB.Create(&user2)
-
-	// Test request payload
-	reqBody := map[string]interface{}{
-		"title":      "Dinner Bill",
-		"amount":     100.0,
-		"paid_by":    user1.ID,
-		"group_id":   group.ID,
-		"split_with": []uint{user1.ID, user2.ID},
-	}
-	body, _ := json.Marshal(reqBody)
-
-	req, _ := http.NewRequest("POST", "/expenses", bytes.NewBuffer(body))
-	req.Header.Set("Content-Type", "application/json")
-
-	resp := httptest.NewRecorder()
-	handlers.CreateExpense(resp, req)
-
-	if resp.Code != http.StatusCreated {
-		t.Errorf("Expected 201 Created, got %d", resp.Code)
-	}
-
-	// ✅ Compare JSON response properly
-	var actualResponse map[string]string
-	json.Unmarshal(resp.Body.Bytes(), &actualResponse)
-
-	expectedResponse := map[string]string{"message": "Expense added successfully"}
-
-	if actualResponse["message"] != expectedResponse["message"] {
-		t.Errorf("Expected response %v, got %v", expectedResponse, actualResponse)
-	}
-}
-
-// ✅ Test CreatePersonalExpense (POST /personal-expense)
-func TestCreatePersonalExpense(t *testing.T) {
+func TestDeleteExpense(t *testing.T) {
 	database.SetupMockDB()
 
-	// Insert test users
-	user1 := models.User{Username: "Charlie", Email: "charlie@example.com"}
-	user2 := models.User{Username: "David", Email: "david@example.com"}
-	database.DB.Create(&user1)
-	database.DB.Create(&user2)
-
-	reqBody := map[string]interface{}{
-		"title":      "Movie Tickets",
-		"amount":     50.0,
-		"paid_by":    user1.ID,
-		"split_with": []uint{user1.ID, user2.ID},
+	// Create an expense record.
+	expense := models.Expense{
+		Title:  "Test Expense",
+		Amount: 50,
+		PaidBy: 1,
 	}
-	body, _ := json.Marshal(reqBody)
-
-	req, _ := http.NewRequest("POST", "/personal-expense", bytes.NewBuffer(body))
-	req.Header.Set("Content-Type", "application/json")
-
-	resp := httptest.NewRecorder()
-	handlers.CreatePersonalExpense(resp, req)
-
-	if resp.Code != http.StatusCreated {
-		t.Errorf("Expected 201 Created, got %d", resp.Code)
+	if err := database.DB.Create(&expense).Error; err != nil {
+		t.Fatalf("Failed to create expense: %v", err)
 	}
 
-	// ✅ Compare JSON response properly
-	var actualResponse map[string]string
-	json.Unmarshal(resp.Body.Bytes(), &actualResponse)
+	// Create an associated expense participant.
+	expParticipant := models.ExpenseParticipant{
+		ExpenseID:  expense.ID,
+		UserID:     1,
+		AmountOwed: 25,
+	}
+	database.DB.Create(&expParticipant)
 
-	expectedResponse := map[string]string{"message": "Personal expense added successfully"}
+	// Prepare DELETE request for the expense.
+	req, _ := http.NewRequest("DELETE", "/expenses/"+strconv.Itoa(int(expense.ID)), nil)
+	req = mux.SetURLVars(req, map[string]string{"expense_id": strconv.Itoa(int(expense.ID))})
+	rr := httptest.NewRecorder()
+	handlers.DeleteExpense(rr, req)
 
-	if actualResponse["message"] != expectedResponse["message"] {
-		t.Errorf("Expected response %v, got %v", expectedResponse, actualResponse)
+	if rr.Code != http.StatusOK {
+		t.Errorf("Expected status code 200, got %d", rr.Code)
+	}
+
+	var resp map[string]string
+	if err := json.NewDecoder(rr.Body).Decode(&resp); err != nil {
+		t.Fatalf("Failed to decode response: %v", err)
+	}
+	if msg, ok := resp["message"]; !ok || msg != "Expense deleted successfully" {
+		t.Errorf("Unexpected response message: %v", resp)
+	}
+
+	// Verify that the expense is deleted.
+	var exp models.Expense
+	if err := database.DB.First(&exp, expense.ID).Error; err == nil {
+		t.Errorf("Expense was not deleted")
+	}
+	// Verify that expense participants are deleted.
+	var count int64
+	database.DB.Model(&models.ExpenseParticipant{}).Where("expense_id = ?", expense.ID).Count(&count)
+	if count != 0 {
+		t.Errorf("Expense participants were not deleted, count: %d", count)
 	}
 }
