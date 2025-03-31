@@ -51,7 +51,7 @@ const AddExpenseModal = ({ open, onClose, currentUser, groupId = null, members =
                 console.error("Error fetching users:", error);
             }
         } else if (members) {
-            setUsers(members.map(user => ({ id: String(user.id), name: user.name })));
+            setUsers(members.map(user => ({ id: String(user.ID), name: user.username })));
         }
     }, [groupId, members]);
 
