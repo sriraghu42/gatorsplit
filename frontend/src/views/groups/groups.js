@@ -134,7 +134,15 @@ const Groups = () => {
                                             primary={group.name}
                                             primaryTypographyProps={{ fontWeight: "bold", fontSize: "1rem" }}
                                         />
+                                        <IconButton
+                                            onClick={() => deletegroup(group.id)}
+                                            sx={{ ml: 1 }}
+                                            edge="end"
+                                        >
+                                            <DeleteIcon />
+                                        </IconButton>
                                     </CardActionArea>
+
                                 </Card>
                             ))
                         ) : (
