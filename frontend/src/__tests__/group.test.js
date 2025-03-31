@@ -2,6 +2,7 @@ import React from "react";
 import { render, screen, fireEvent, waitFor, act } from "@testing-library/react";
 import { MemoryRouter } from "react-router-dom";
 import Groups from "../views/groups/groups";
+import { AuthProvider } from "../context/AuthContext";
 
 // Ensure `fetch` is mocked globally
 beforeAll(() => {
@@ -19,7 +20,8 @@ jest.mock("react-router-dom", () => ({
 describe("Groups Component", () => {
   beforeEach(() => {
     jest.clearAllMocks();
-    localStorage.setItem("authTokens", JSON.stringify("mock_token"));
+    localStorage.setItem("authTokens", JSON.stringify("eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VySWQiOjEsIm5hbWUiOiJUZXN0IFVzZXIifQ.fakeSignature"));
+
   });
 
   test("fetches and displays groups correctly", async () => {
@@ -32,10 +34,12 @@ describe("Groups Component", () => {
 
     await act(async () => {
       render(
-        <MemoryRouter>
-          <Groups />
-        </MemoryRouter>
-      );
+  <MemoryRouter>
+    <AuthProvider>
+      <Groups />
+    </AuthProvider>
+  </MemoryRouter>
+);
     });
 
     expect(await screen.findByText(/Trip Expenses/i)).toBeInTheDocument();
@@ -52,10 +56,12 @@ describe("Groups Component", () => {
 
     await act(async () => {
       render(
-        <MemoryRouter>
-          <Groups />
-        </MemoryRouter>
-      );
+  <MemoryRouter>
+    <AuthProvider>
+      <Groups />
+    </AuthProvider>
+  </MemoryRouter>
+);
     });
 
     expect(screen.queryByRole("progressbar")).toBeInTheDocument();
@@ -71,10 +77,12 @@ describe("Groups Component", () => {
 
     await act(async () => {
       render(
-        <MemoryRouter>
-          <Groups />
-        </MemoryRouter>
-      );
+  <MemoryRouter>
+    <AuthProvider>
+      <Groups />
+    </AuthProvider>
+  </MemoryRouter>
+);
     });
 
     const groupElement = await screen.findByText(/Trip Expenses/i);
@@ -93,10 +101,12 @@ describe("Groups Component", () => {
 
     await act(async () => {
       render(
-        <MemoryRouter>
-          <Groups />
-        </MemoryRouter>
-      );
+  <MemoryRouter>
+    <AuthProvider>
+      <Groups />
+    </AuthProvider>
+  </MemoryRouter>
+);
     });
 
     await waitFor(() => {
