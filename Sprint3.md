@@ -1,14 +1,16 @@
 # Sprint3
 
 ## User Stories
-[View User Stories]
+[View User Stories] (https://github.com/sriraghu42/gatorsplit/issues?q=is%3Aissue%20state%3Aopen%20%20label%3Asprint3)
 
 ## Issues Overview
-•⁠  ⁠*Planned Issues:* [View Here]
-•⁠  ⁠*Successfully Completed Issues:* [View Here]
-•⁠  ⁠*Issues Not Completed:* [View Here]
+•⁠  ⁠*Planned Issues:* [View Here] (https://github.com/sriraghu42/gatorsplit/issues?q=is%3Aissue%20%20label%3Asprint3%20)
+•⁠  ⁠*Successfully Completed Issues:* [View Here](https://github.com/sriraghu42/gatorsplit/issues?q=is%3Aissue%20state%3Aclosed%20%20label%3Asprint3)
+•⁠  ⁠*Issues Not Completed:* [View Here](https://github.com/sriraghu42/gatorsplit/issues?q=is%3Aissue%20state%3Aopen%20%20label%3Asprint3)
 
 ## Demo Video: 
+
+[Demo Video](https://youtu.be/uSKRQlgnQSk)
 
 ## Frontend Functionality 
 The frontend allows users to manage groups, expenses, and threads with a smooth UI and responsive interactions.
