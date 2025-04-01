@@ -10,7 +10,7 @@
 
 ## Demo Video: 
 
-[Demo Video](https://youtu.be/uSKRQlgnQSk)
+[Demo Video](https://youtu.be/qI1x7gRXzlo)
 
 ## Frontend Functionality 
 The frontend allows users to manage groups, expenses, and threads with a smooth UI and responsive interactions.
