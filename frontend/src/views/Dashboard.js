@@ -1,4 +1,8 @@
 import React, { useEffect, useState } from "react";
+import { IconButton } from "@mui/material";
+import { useContext } from "react";
+import DeleteIcon from "@mui/icons-material/Delete";
+import AuthContext from "../context/AuthContext";
 import {
   Box,
   Button,
@@ -19,8 +23,13 @@ import DoneAllIcon from "@mui/icons-material/DoneAll";
 import PersonIcon from '@mui/icons-material/Person';
 import CreateGroup from "./groups/CreateGroup";
 import { useHistory } from "react-router-dom";  
+import Swal from "sweetalert2";
+import withReactContent from "sweetalert2-react-content";
+import Tooltip from '@mui/material/Tooltip';
 
+const MySwal = withReactContent(Swal);
 function DashboardPage() {
+  const { confirmAndDeleteGroup } = useContext(AuthContext);
   const [groups, setGroups] = useState([]);
   const [users, setUsers] = useState([]);
   const [balances, setBalances] = useState(null);
@@ -103,7 +112,19 @@ function DashboardPage() {
       setLoading(false);
     }
   }
-
+  
+  const deletegroup = async (groupId) => {
+    try {
+        const success = await confirmAndDeleteGroup(groupId);
+        if (success) {
+            setGroups(prev => prev.filter(group => group.id !== groupId));
+        }
+      } catch (error) {
+          throw new Error("Failed to delete group.");
+      }
+  };
+  
+  
   const handleSelectGroup = (id) => {
     history.push(`/groups/${id}`);
   };
@@ -211,7 +232,14 @@ function DashboardPage() {
               <List sx={{ maxHeight: "300px", overflowY: "auto" }}>
                 {groups.length > 0 ? (
                   groups.map((group, index) => (
-                    <ListItem key={index} divider>
+                    <ListItem key={index} divider
+                    secondaryAction={
+                       <Tooltip title="Delete Group" arrow> <IconButton edge="end" onClick={() => deletegroup(group.id)}  aria-label="Delete Group">
+                       <DeleteIcon />
+                     </IconButton> </Tooltip>
+                      
+                    }
+                  >
                       <ListItemText primary={group.name}
                         key={group.id} 
                         button

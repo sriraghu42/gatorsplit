@@ -1,12 +1,16 @@
 import { createContext, useState, useEffect } from "react";
 import { jwtDecode } from "jwt-decode";
 import { useHistory } from "react-router-dom";
+import Swal from "sweetalert2";
+import withReactContent from "sweetalert2-react-content";
+import { confirmAndDeleteGroup } from "../utils/groupHelper";
+
 const swal = require("sweetalert2");
 
 const AuthContext = createContext();
 
 export default AuthContext;
-
+const MySwal = withReactContent(Swal);
 export const AuthProvider = ({ children }) => {
   const [authTokens, setAuthTokens] = useState(() =>
     localStorage.getItem("authTokens")
@@ -302,6 +306,7 @@ const verifyOldPassword = async (email, oldPassword) => {
 };
 
 
+
   // Run Check on Component Load
   useEffect(() => {
     let storedToken = localStorage.getItem("authTokens");
@@ -347,8 +352,7 @@ const verifyOldPassword = async (email, oldPassword) => {
     verifyOTP,
     resetPassword,
     verifyOldPassword,
-
-
+    confirmAndDeleteGroup,
   };
 
   useEffect(() => {

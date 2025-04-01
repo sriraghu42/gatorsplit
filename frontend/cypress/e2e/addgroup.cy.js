@@ -2,10 +2,10 @@
 
 describe("Login and Create Group", () => {
     it("logs in, opens the create group modal, fills in the group name, selects members, and submits", () => {
-        const email = "chand"; // Replace with valid email
-        const password = "haha"; // Replace with valid password
+        const email = "chandana"; // Replace with valid email
+        const password = "chandana"; // Replace with valid password
         const groupName = "Spring break Trip"; // Change as needed
-        const selectedUsers = ["chand", "varun"]; // Adjust based on available users
+        const selectedUsers = ["chandana", "varun"]; // Adjust based on available users
 
         cy.visit("/login");
 
