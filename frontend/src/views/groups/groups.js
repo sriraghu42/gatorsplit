@@ -138,6 +138,7 @@ const Groups = () => {
                                             onClick={() => deletegroup(group.id)}
                                             sx={{ ml: 1 }}
                                             edge="end"
+                                            aria-label="Delete Group"
                                         >
                                             <DeleteIcon />
                                         </IconButton>

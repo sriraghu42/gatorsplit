@@ -234,7 +234,7 @@ function DashboardPage() {
                   groups.map((group, index) => (
                     <ListItem key={index} divider
                     secondaryAction={
-                       <Tooltip title="Delete Group" arrow> <IconButton edge="end" onClick={() => deletegroup(group.id)}>
+                       <Tooltip title="Delete Group" arrow> <IconButton edge="end" onClick={() => deletegroup(group.id)}  aria-label="Delete Group">
                        <DeleteIcon />
                      </IconButton> </Tooltip>
                       

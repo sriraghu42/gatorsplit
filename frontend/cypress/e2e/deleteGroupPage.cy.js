@@ -4,7 +4,7 @@ describe("Delete Group from Groups Page", () => {
     it("logs in, navigates to groups page, deletes a group, and verifies it's removed", () => {
       const email = "chandana";
       const password = "chandana";
-      const groupName = "Group1"; // Ensure this group exists
+      const groupName = "Spring break Trip"; // Ensure this group exists
   
       // Visit login page
       cy.visit("/login");
