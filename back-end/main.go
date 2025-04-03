@@ -48,6 +48,7 @@ func main() {
 	// User and Group Management
 	protected.HandleFunc("/users", handlers.GetAllUsers).Methods("GET", "OPTIONS")
 	protected.HandleFunc("/groups", handlers.CreateGroup).Methods("POST", "OPTIONS")
+	protected.HandleFunc("/groups/{group_id}/editusers", handlers.UpdateGroupMembers).Methods("POST", "OPTIONS")
 	protected.HandleFunc("/users/groups", handlers.GetUserGroups).Methods("GET", "OPTIONS")
 	protected.HandleFunc("/groups/{id}/users", handlers.GetGroupUsers).Methods("GET", "OPTIONS")
 	protected.HandleFunc("/groups/{group_id}/expenses", handlers.GetGroupExpensesWithDetails).Methods("GET", "OPTIONS")
