@@ -22,10 +22,12 @@ import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
 import DoneAllIcon from "@mui/icons-material/DoneAll";
 import PersonIcon from '@mui/icons-material/Person';
 import CreateGroup from "./groups/CreateGroup";
-import { useHistory } from "react-router-dom";  
+import { useHistory } from "react-router-dom";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 import Tooltip from '@mui/material/Tooltip';
+import NewExpenseModal from "./NewExpensesModal";
+
 
 const MySwal = withReactContent(Swal);
 function DashboardPage() {
@@ -37,9 +39,10 @@ function DashboardPage() {
   const [openModal, setOpenModal] = useState(false);
   const history = useHistory();
   const userid = JSON.parse(localStorage.getItem("userid"))
+  const [newExpensesOpen, setNewExpensesOpen] = useState(false);
 
   useEffect(() => {
-    
+
     // const fetchData = async () => {
     //   try {       
     //     const [usersResponse] = await Promise.all([
@@ -51,15 +54,15 @@ function DashboardPage() {
     //         }
     //       }),
     //     ]);        
-  
+
     //     const usersData = await usersResponse.json();        
     //     const balancesData = []
-        
+
     //     setUsers(usersData || []); // Set users from the API response
     //     const  balanceResponse=[]
     //     setBalances(balancesData || null);
-       
-        
+
+
     //   } catch (error) {
     //     console.error("Error fetching data:", error);
     //   } finally {
@@ -71,7 +74,7 @@ function DashboardPage() {
     //fetchData();
   }, []);
 
-  const fetchUsersAndBalances = async() => {
+  const fetchUsersAndBalances = async () => {
     try {
       const response = await fetch(`http://localhost:8080/api/dashboard/balances/${userid}`, {
         method: "GET",
@@ -89,9 +92,9 @@ function DashboardPage() {
       })
       setUsers(data.users);
       console.log(data, "AKkkka")
-    } catch(err) {
+    } catch (err) {
       console.error("Error fetching Users data and Balances:", err);
-    } 
+    }
   } //list of users {their balances to current}, current totals.
 
   const fetchGroups = async () => {
@@ -112,19 +115,19 @@ function DashboardPage() {
       setLoading(false);
     }
   }
-  
+
   const deletegroup = async (groupId) => {
     try {
-        const success = await confirmAndDeleteGroup(groupId);
-        if (success) {
-            setGroups(prev => prev.filter(group => group.id !== groupId));
-        }
-      } catch (error) {
-          throw new Error("Failed to delete group.");
+      const success = await confirmAndDeleteGroup(groupId);
+      if (success) {
+        setGroups(prev => prev.filter(group => group.id !== groupId));
       }
+    } catch (error) {
+      throw new Error("Failed to delete group.");
+    }
   };
-  
-  
+
+
   const handleSelectGroup = (id) => {
     history.push(`/groups/${id}`);
   };
@@ -194,7 +197,7 @@ function DashboardPage() {
           color="primary"
           sx={{ mx: 1 }}
           startIcon={<GroupIcon />}
-          onClick={() => setOpenModal(true)} 
+          onClick={() => setOpenModal(true)}
         >
           Create Group
         </Button>
@@ -203,6 +206,7 @@ function DashboardPage() {
           color="secondary"
           sx={{ mx: 1 }}
           startIcon={<AddCircleOutlineIcon />}
+          onClick={() => setNewExpensesOpen(true)}
         >
           Add Expense
         </Button>
@@ -233,22 +237,22 @@ function DashboardPage() {
                 {groups.length > 0 ? (
                   groups.map((group, index) => (
                     <ListItem key={index} divider
-                    secondaryAction={
-                       <Tooltip title="Delete Group" arrow> <IconButton edge="end" onClick={() => deletegroup(group.id)}  aria-label="Delete Group">
-                       <DeleteIcon />
-                     </IconButton> </Tooltip>
-                      
-                    }
-                  >
+                      secondaryAction={
+                        <Tooltip title="Delete Group" arrow> <IconButton edge="end" onClick={() => deletegroup(group.id)} aria-label="Delete Group">
+                          <DeleteIcon />
+                        </IconButton> </Tooltip>
+
+                      }
+                    >
                       <ListItemText primary={group.name}
-                        key={group.id} 
+                        key={group.id}
                         button
                         onClick={() => handleSelectGroup(group.id)}
                         sx={{
-                            "&:hover": { backgroundColor: "#e3f2fd" },
-                            borderRadius: "5px",
-                            mb: 1
-                        }} 
+                          "&:hover": { backgroundColor: "#e3f2fd" },
+                          borderRadius: "5px",
+                          mb: 1
+                        }}
                       />
                     </ListItem>
                   ))
@@ -269,49 +273,49 @@ function DashboardPage() {
               <Typography variant="h6" fontWeight="bold" gutterBottom>
                 Friends
               </Typography>
-              
+
               <List sx={{ maxHeight: "300px", overflowY: "auto" }}>
-                
-                    {users?.length > 0 ? (
-                users.filter((userData) => userData.user_id != userid) .map((userData, index) => (
 
-                  //do nnot display current user.
+                {users?.length > 0 ? (
+                  users.filter((userData) => userData.user_id != userid).map((userData, index) => (
 
-                  <ListItem key={index} divider sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                  {/* Left Side: Icon and Name with Gap */}
-                  <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
-                    <PersonIcon />
-                    <ListItemText primary={userData.username} />
-                  </Box>
-            
-                  <Box
-                    sx={{
-                      display: "flex",
-                      flexDirection: "column",
-                      alignItems: "flex-end", // Ensures right text aligns correctly
-                      justifyContent: "center", // Centers it with the name
-                    }}
-                  >
-                    <Typography variant="body2" sx={{ color: userData.net_balance>=0 ? "green" : "red" }}>
-                      {userData.net_balance>=0 ? "owes you" : "you owe"}
-                    </Typography>
-                    <Typography
-                      variant="h6"
-                      sx={{
-                        color: userData.net_balance>=0 ? "green" : "red",
-                        fontWeight: "bold",
-                      }}
-                    >
-                      ${Math.abs(userData.net_balance).toFixed(2)}
-                    </Typography>
-                  </Box>
-              </ListItem>
-                                ))
-              ) : (
-                <Typography color="textSecondary" align="center">
-                  No users available.
-                </Typography>
-              )}
+                    //do nnot display current user.
+
+                    <ListItem key={index} divider sx={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                      {/* Left Side: Icon and Name with Gap */}
+                      <Box sx={{ display: "flex", alignItems: "center", gap: 2 }}>
+                        <PersonIcon />
+                        <ListItemText primary={userData.username} />
+                      </Box>
+
+                      <Box
+                        sx={{
+                          display: "flex",
+                          flexDirection: "column",
+                          alignItems: "flex-end", // Ensures right text aligns correctly
+                          justifyContent: "center", // Centers it with the name
+                        }}
+                      >
+                        <Typography variant="body2" sx={{ color: userData.net_balance >= 0 ? "green" : "red" }}>
+                          {userData.net_balance >= 0 ? "owes you" : "you owe"}
+                        </Typography>
+                        <Typography
+                          variant="h6"
+                          sx={{
+                            color: userData.net_balance >= 0 ? "green" : "red",
+                            fontWeight: "bold",
+                          }}
+                        >
+                          ${Math.abs(userData.net_balance).toFixed(2)}
+                        </Typography>
+                      </Box>
+                    </ListItem>
+                  ))
+                ) : (
+                  <Typography color="textSecondary" align="center">
+                    No users available.
+                  </Typography>
+                )}
 
               </List>
             </CardContent>
@@ -324,7 +328,11 @@ function DashboardPage() {
         onClose={() => setOpenModal(false)}
         onGroupCreated={fetchGroups} // Refresh groups after creation
       />
- 
+      <NewExpenseModal
+        open={newExpensesOpen}
+        onClose={() => setNewExpensesOpen(false)}
+        currentUserId={userid}
+      />
     </Container>
   );
 }
