@@ -68,7 +68,7 @@ func main() {
 	protected.HandleFunc("/dashboard/balances/{user_id}", handlers.GetDashboardBalances).Methods("GET", "OPTIONS")
 	//protected.HandleFunc("/expenses/{expense_id}/settle", handlers.SettleExpense).Methods("POST", "OPTIONS")
 	protected.HandleFunc("/expenses/{expense_id}", handlers.DeleteExpense).Methods("DELETE", "OPTIONS")
-	protected.HandleFunc("/expenses/group/settle", handlers.SettleGroupExpense).Methods("POST")
+	protected.HandleFunc("/expenses/group/settle", handlers.SettleGroupExpense).Methods("POST", "OPTIONS")
 
 	// Print all registered routes
 	fmt.Println("Registered Routes:")
