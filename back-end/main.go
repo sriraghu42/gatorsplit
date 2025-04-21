@@ -66,8 +66,10 @@ func main() {
 	protected.HandleFunc("/expenses", handlers.CreateExpense).Methods("POST", "OPTIONS")
 	protected.HandleFunc("/personal-expense", handlers.CreatePersonalExpense).Methods("POST", "OPTIONS")
 	protected.HandleFunc("/dashboard/balances/{user_id}", handlers.GetDashboardBalances).Methods("GET", "OPTIONS")
-	protected.HandleFunc("/expenses/{expense_id}/settle", handlers.SettleExpense).Methods("POST", "OPTIONS")
+	//protected.HandleFunc("/expenses/{expense_id}/settle", handlers.SettleExpense).Methods("POST", "OPTIONS")
 	protected.HandleFunc("/expenses/{expense_id}", handlers.DeleteExpense).Methods("DELETE", "OPTIONS")
+	protected.HandleFunc("/expenses/group/settle", handlers.SettleGroupExpense).Methods("POST")
+
 	// Print all registered routes
 	fmt.Println("Registered Routes:")
 	r.Walk(func(route *mux.Route, router *mux.Router, ancestors []*mux.Route) error {

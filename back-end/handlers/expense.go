@@ -152,3 +152,55 @@ func DeleteExpense(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 	json.NewEncoder(w).Encode(map[string]string{"message": "Expense deleted successfully"})
 }
+
+// SettleGroupExpense - Records a settlement between two users in a group
+func SettleGroupExpense(w http.ResponseWriter, r *http.Request) {
+	var req struct {
+		Title       string  `json:"title"`
+		Amount      float64 `json:"amount"`
+		PaidBy      uint    `json:"paid_by"`
+		SettledWith uint    `json:"settled_with"`
+		GroupID     *uint   `json:"group_id"`
+	}
+
+	// Decode request payload
+	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		http.Error(w, "Invalid request payload", http.StatusBadRequest)
+		return
+	}
+
+	// Validate input
+	if req.Amount <= 0 || req.PaidBy == 0 || req.SettledWith == 0 || req.GroupID == nil {
+		http.Error(w, "Missing or invalid fields in request", http.StatusBadRequest)
+		return
+	}
+
+	// Create the expense record
+	expense := models.Expense{
+		Title:   req.Title,
+		Amount:  req.Amount,
+		PaidBy:  req.PaidBy,
+		GroupID: req.GroupID,
+	}
+
+	if err := database.DB.Create(&expense).Error; err != nil {
+		http.Error(w, "Error creating settlement expense", http.StatusInternalServerError)
+		return
+	}
+
+	// Add the recipient as the only participant
+	participant := models.ExpenseParticipant{
+		ExpenseID:  expense.ID,
+		UserID:     req.SettledWith,
+		AmountOwed: req.Amount,
+	}
+
+	if err := database.DB.Create(&participant).Error; err != nil {
+		http.Error(w, "Error assigning participant", http.StatusInternalServerError)
+		return
+	}
+
+	// Respond
+	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(map[string]string{"message": "Settlement recorded successfully"})
+}
