@@ -28,6 +28,7 @@ import { useHistory } from "react-router-dom";
 import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 import AuthContext from "../context/AuthContext";
+import SettleUpModal from "./SettleUpModal";
 
 const MySwal = withReactContent(Swal);
 
@@ -41,6 +42,8 @@ function DashboardPage() {
   const [newExpensesOpen, setNewExpensesOpen] = useState(false);
   const history = useHistory();
   const userid = JSON.parse(localStorage.getItem("userid"));
+  const [settleUpOpen, setSettleUpOpen] = useState(false);
+
 
   useEffect(() => {
     fetchUsersAndBalances();
@@ -161,13 +164,15 @@ function DashboardPage() {
           Add Expense
         </Button>
         <Button
-          variant="contained"
-          color="success"
-          sx={{ mx: 1, borderRadius: 3, boxShadow: 2 }}
-          startIcon={<DoneAllIcon />}
-        >
-          Settle Up
-        </Button>
+  variant="contained"
+  color="success"
+  sx={{ mx: 1, borderRadius: 3, boxShadow: 2 }}
+  startIcon={<DoneAllIcon />}
+  onClick={() => setSettleUpOpen(true)}
+>
+  Settle Up
+</Button>
+
       </Box>
 
       <Divider sx={{ my: 4 }} />
@@ -253,6 +258,14 @@ function DashboardPage() {
         onClose={() => setNewExpensesOpen(false)}
         currentUserId={userid}
       />
+
+<SettleUpModal
+  open={settleUpOpen}
+  onClose={() => setSettleUpOpen(false)}
+  currentUser={userid}
+  allowGroupSelect={true}
+/>
+
     </Container>
   );
 }
