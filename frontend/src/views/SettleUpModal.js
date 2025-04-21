@@ -82,7 +82,7 @@ const SettleUpModal = ({
             group_id: parseInt(selectedGroup),
             amount: parseFloat(amount),
             paid_by: parseInt(currentUser),
-            split_with: parseInt(selectedUser)
+            settled_with: parseInt(selectedUser)
         };
 
         try {
