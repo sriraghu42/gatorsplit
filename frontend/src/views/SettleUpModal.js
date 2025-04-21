@@ -78,10 +78,11 @@ const SettleUpModal = ({
         if (Object.keys(errs).length > 0) return;
 
         const payload = {
-            from_user: parseInt(currentUser),
-            to_user: parseInt(selectedUser),
+            title: "SETTLE_UP_PAYMENT",
             group_id: parseInt(selectedGroup),
             amount: parseFloat(amount),
+            paid_by: parseInt(currentUser),
+            split_with: parseInt(selectedUser)
         };
 
         try {
