@@ -65,6 +65,7 @@ Backend will start at: http://localhost:8080
 
 `npm start`
 
+The frontend will start at: http://localhost:3000
 
 ## Running Tests:
 
@@ -79,6 +80,7 @@ React Frontend Tests:
 `cd frontend`
 
 `npm test`
+
 
 ## Project Members  
 
