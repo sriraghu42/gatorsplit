@@ -292,6 +292,7 @@ const GroupDetails = ({ groupId, groupName }) => {
                 currentUser={userid}
                 groupId={groupId}
                 fetchExpenses={fetchExpenses}
+                allowGroupSelect={false}
             />
 
         </Box>
