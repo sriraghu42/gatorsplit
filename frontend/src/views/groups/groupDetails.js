@@ -16,6 +16,8 @@ import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 import Tooltip from '@mui/material/Tooltip';
 import AddMemberModal from "./AddMemberModal";
+import SettleUpModal from "../SettleUpModal";
+
 const MySwal = withReactContent(Swal);
 
 
@@ -26,6 +28,7 @@ const GroupDetails = ({ groupId, groupName }) => {
     const [expenses, setExpenses] = useState([]);
     const [isExpenseModalOpen, setExpenseModalOpen] = useState(false);
     const [isAddMemberModalOpen, setAddMemberModalOpen] = useState(false);
+    const [isSettleUpModalOpen, setSettleUpModalOpen] = useState(false);
 
 
     // Function to fetch group details
@@ -148,6 +151,7 @@ const GroupDetails = ({ groupId, groupName }) => {
                                     color="secondary"
                                     startIcon={<DoneAllIcon />}
                                     sx={{ borderRadius: 2 }}
+                                    onClick={() => setSettleUpModalOpen(true)}
                                 >
                                     Settle Up
                                 </Button>
@@ -280,6 +284,16 @@ const GroupDetails = ({ groupId, groupName }) => {
             />
 
             <AddExpenseModal open={isExpenseModalOpen} onClose={() => setExpenseModalOpen(false)} groupId={groupId} members={group?.users} currentUser={userid} fetchExpenses={fetchExpenses} />
+
+            <SettleUpModal
+                open={isSettleUpModalOpen}
+                onClose={() => setSettleUpModalOpen(false)}
+                users={group?.users || []}
+                currentUser={userid}
+                groupId={groupId}
+                fetchExpenses={fetchExpenses}
+            />
+
         </Box>
     );
 };
