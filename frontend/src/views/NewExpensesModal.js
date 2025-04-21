@@ -151,8 +151,11 @@ const NewExpenseModal = ({ open, onClose, currentUserId }) => {
 
         {/* Select Group */}
         <FormControl fullWidth margin="dense" error={!!errors.selectedGroupId} required>
-          <InputLabel>Select Group</InputLabel>
+          <InputLabel id="select-group-label">Select Group</InputLabel>
           <Select
+            labelId="select-group-label"
+            aria-labelledby="select-group-label"
+            data-testid="group-select"
             value={selectedGroupId}
             onChange={(e) => setSelectedGroupId(e.target.value)}
             label="Select Group"
@@ -186,8 +189,11 @@ const NewExpenseModal = ({ open, onClose, currentUserId }) => {
 
         {/* Payer Dropdown */}
         <FormControl fullWidth margin="dense" error={!!errors.payer} required>
-          <InputLabel>Who Paid?</InputLabel>
+          <InputLabel id="payer-select-label">Who Paid?</InputLabel>
           <Select
+           labelId="payer-select-label"
+           id="payer-select"
+           data-testid="payer-select"
             value={payer}
             onChange={(e) => setPayer(e.target.value)}
           >
@@ -199,8 +205,11 @@ const NewExpenseModal = ({ open, onClose, currentUserId }) => {
 
         {/* Split Among */}
         <FormControl fullWidth margin="dense" error={!!errors.selectedUsers} required>
-          <InputLabel>Split With</InputLabel>
+          <InputLabel id="split-select-label">Split With</InputLabel>
           <Select
+           labelId="split-select-label"
+           id="split-select"
+           data-testid="split-select"
             multiple
             value={selectedUsers}
             onChange={(e) => setSelectedUsers(e.target.value)}
