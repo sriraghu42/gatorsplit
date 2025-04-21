@@ -136,22 +136,22 @@ const GroupDetails = ({ groupId, groupName }) => {
                                     const paidByName = paidByUser?.username || "Someone";
                                     const otherName = otherUser?.username || "Unknown";
 
-                                    const userOwe = participants.find(p => p.user_id === userid);
+                                    const userOwe = participants.find(p => p.user_id == userid);
                                     const amountOwed = userOwe?.amount_owed?.toFixed(2) || "0.00";
-                                    const amountYouAreOwed = expense.paid_by === userid
+                                    const amountYouAreOwed = expense.paid_by == userid
                                         ? (expense.amount - parseFloat(amountOwed)).toFixed(2)
                                         : "0.00";
 
                                     let activityText;
 
                                     if (expense.title === "SETTLE_UP_PAYMENT") {
-                                        if (expense.paid_by === userid) {
+                                        if (expense.paid_by == userid) {
                                             activityText = (
                                                 <Typography variant="body2" sx={{ fontSize: "1rem" }}>
                                                     You settled up <b>${expense.amount}</b> with <b>{otherName}</b>.
                                                 </Typography>
                                             );
-                                        } else if (otherUser?.user_id === userid) {
+                                        } else if (otherUser?.user_id == userid) {
                                             activityText = (
                                                 <Typography variant="body2" sx={{ fontSize: "1rem" }}>
                                                     <b>{paidByName}</b> paid <b>${expense.amount}</b> to you.
@@ -165,7 +165,7 @@ const GroupDetails = ({ groupId, groupName }) => {
                                             );
                                         }
                                     } else {
-                                        if (expense.paid_by === userid) {
+                                        if (expense.paid_by == userid) {
                                             activityText = (
                                                 <Typography variant="body2" sx={{ fontSize: "1rem" }}>
                                                     You paid <b>${expense.amount}</b> for <b>{expense.title}</b>. You are owed <b>${amountYouAreOwed}</b>.
@@ -187,7 +187,7 @@ const GroupDetails = ({ groupId, groupName }) => {
                                             {expense.title !== "SETTLE_UP_PAYMENT" && (
                                                 <Chip
                                                     label={
-                                                        expense.paid_by === userid
+                                                        expense.paid_by == userid
                                                             ? `You are owed $${amountYouAreOwed}`
                                                             : `You owe $${amountOwed}`
                                                     }

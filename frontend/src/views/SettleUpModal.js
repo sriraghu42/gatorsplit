@@ -25,7 +25,7 @@ const SettleUpModal = ({
         if (open && allowGroupSelect) {
             fetchGroups();
         } else if (open && users.length) {
-            setGroupUsers(users.filter(u => u.ID !== currentUser));
+            setGroupUsers(users.filter(u => u.ID != currentUser));
         }
         if (groupId) setSelectedGroup(groupId);
     }, [open, users, currentUser, allowGroupSelect, groupId]);
@@ -57,6 +57,7 @@ const SettleUpModal = ({
             });
             const data = await res.json();
             const filtered = data.users.filter(user => user.ID != currentUser);
+            
             setGroupUsers(filtered);
         } catch (e) {
             console.error("Failed to load group users", e);
@@ -86,7 +87,7 @@ const SettleUpModal = ({
         };
 
         try {
-            const res = await fetch("http://localhost:8080/api/settle", {
+            const res = await fetch("http://localhost:8080/api/expenses/group/settle", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
