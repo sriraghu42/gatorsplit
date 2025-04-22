@@ -1,5 +1,16 @@
 # Sprint4
 
+## User Stories
+[View User Stories] (https://github.com/sriraghu42/gatorsplit/issues?q=is%3Aissue%20%20label%3Asprint4%20label%3AUserStory)
+
+## Issues Overview
+•⁠  ⁠*Planned Issues:* [View Here] (https://github.com/sriraghu42/gatorsplit/issues?q=is%3Aissue%20%20label%3Asprint4)
+•⁠  ⁠*Successfully Completed Issues:* [View Here] (https://github.com/sriraghu42/gatorsplit/issues?q=is%3Aissue%20state%3Aclosed%20%20label%3Asprint4)
+
+## Demo Video: 
+
+[Demo Video]()
+
 ## Frontend Functionality  
 The frontend continues to enhance user experience with smooth interactions and intuitive UI for managing groups, expenses, and balances.
 
