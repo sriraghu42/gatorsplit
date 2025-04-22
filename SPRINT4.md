@@ -1,11 +1,11 @@
 # Sprint4
 
 ## User Stories
-[View User Stories] (https://github.com/sriraghu42/gatorsplit/issues?q=is%3Aissue%20%20label%3Asprint4%20label%3AUserStory)
+[View User Stories](https://github.com/sriraghu42/gatorsplit/issues?q=is%3Aissue%20%20label%3Asprint4%20label%3AUserStory)
 
 ## Issues Overview
-•⁠  ⁠*Planned Issues:* [View Here] (https://github.com/sriraghu42/gatorsplit/issues?q=is%3Aissue%20%20label%3Asprint4)
-•⁠  ⁠*Successfully Completed Issues:* [View Here] (https://github.com/sriraghu42/gatorsplit/issues?q=is%3Aissue%20state%3Aclosed%20%20label%3Asprint4)
+•⁠  ⁠*Planned Issues:* [View Here](https://github.com/sriraghu42/gatorsplit/issues?q=is%3Aissue%20%20label%3Asprint4)
+•⁠  ⁠*Successfully Completed Issues:* [View Here](https://github.com/sriraghu42/gatorsplit/issues?q=is%3Aissue%20state%3Aclosed%20%20label%3Asprint4)
 
 ## Demo Video: 
 
