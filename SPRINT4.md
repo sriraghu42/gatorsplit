@@ -9,7 +9,7 @@
 
 ## Demo Video: 
 
-[Demo Video]()
+[Demo Video](https://drive.google.com/file/d/11dmm5tcy1dIaNltg54tPZs5Hg4xoJQ43/view?usp=sharing)
 
 ## Frontend Functionality  
 The frontend continues to enhance user experience with smooth interactions and intuitive UI for managing groups, expenses, and balances.
@@ -30,17 +30,17 @@ The frontend continues to enhance user experience with smooth interactions and i
 
 ### Jest Unit Testing
 
-- `SettleUp.test.js` – Verifies settle up logic, including correct balance updates and feedback rendering.
-- `DashboardAddExpense.test.js` – Tests dashboard expense form, including validation and API call success/failure flows.
+- `SettleUpModal.test.js` – Verifies settle up logic, including correct balance updates and feedback rendering.
+- `newexpense.test.js` – Tests dashboard expense form, including validation and API call success/failure flows.
 
 ### Cypress Testing
 
-#### 1. settleUp.cy.js
+#### 1. settleUpFromGroup.cy.js
 
 - Logs in, navigates to a group or dashboard, clicks "Settle Up", confirms via SweetAlert, and checks balance updates.
 - Intercepts PATCH/POST calls related to settlement to confirm API success.
 
-#### 2. dashboardAddExpense.cy.js
+#### 2. newexpense.cy.js
 
 - Simulates opening the dashboard add-expense modal, filling form, and submitting it.
 - Verifies that expenses appear in the correct group view after creation and checks form validations.
