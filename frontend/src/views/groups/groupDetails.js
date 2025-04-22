@@ -16,19 +16,19 @@ import Swal from "sweetalert2";
 import withReactContent from "sweetalert2-react-content";
 import Tooltip from '@mui/material/Tooltip';
 import AddMemberModal from "./AddMemberModal";
+import SettleUpModal from "../SettleUpModal";
+
 const MySwal = withReactContent(Swal);
 
-
 const GroupDetails = ({ groupId, groupName }) => {
-    const userid = JSON.parse(localStorage.getItem("userid")); // Get current user ID
+    const userid = JSON.parse(localStorage.getItem("userid"));
     const [group, setGroup] = useState(null);
     const [loading, setLoading] = useState(true);
     const [expenses, setExpenses] = useState([]);
     const [isExpenseModalOpen, setExpenseModalOpen] = useState(false);
     const [isAddMemberModalOpen, setAddMemberModalOpen] = useState(false);
+    const [isSettleUpModalOpen, setSettleUpModalOpen] = useState(false);
 
-
-    // Function to fetch group details
     const getUsersOfAGroup = useCallback(async () => {
         try {
             const response = await fetch(`http://localhost:8080/api/groups/${groupId}/users`, {
@@ -42,13 +42,11 @@ const GroupDetails = ({ groupId, groupName }) => {
             const groupData = await response.json();
             setGroup(groupData);
         } catch (error) {
-            // console.error("Error fetching group data:", error);
         } finally {
             setLoading(false);
         }
     }, [groupId]);
 
-    // Function to fetch expenses
     const fetchExpenses = useCallback(async () => {
         try {
             const response = await fetch(`http://localhost:8080/api/groups/${groupId}/expenses`, {
@@ -62,7 +60,6 @@ const GroupDetails = ({ groupId, groupName }) => {
             const expensesData = await response.json();
             setExpenses(expensesData);
         } catch (error) {
-            // console.error("Error fetching expenses:", error);
         }
     }, [groupId]);
 
@@ -96,10 +93,8 @@ const GroupDetails = ({ groupId, groupName }) => {
                 }
             } catch (error) {
                 Swal.fire("Error", error.message, "error");
-
             }
         }
-
     };
 
     useEffect(() => {
@@ -109,111 +104,99 @@ const GroupDetails = ({ groupId, groupName }) => {
         }
     }, [groupId, getUsersOfAGroup, fetchExpenses]);
 
-    if (loading) {
-        return <Typography variant="h6">Loading group data...</Typography>;
-    }
-
+    if (loading) return <Typography variant="h6">Loading group data...</Typography>;
     if (!group) return <Typography variant="h6">No group found.</Typography>;
 
     return (
         <Box sx={{ display: "flex", flexDirection: "column", flexGrow: 1, height: "100%", p: 2 }}>
             <Grid container sx={{ flexGrow: 1, height: "100%" }} spacing={3}>
-
-                {/* Left Section - Expenses Activity */}
                 <Grid item xs={9} sx={{ display: "flex", flexDirection: "column", height: "100%" }}>
-                    <Typography variant="h4" fontWeight="bold" textAlign="center" mb={2} color="black">
+                    <Typography variant="h4" fontWeight="bold" textAlign="center" mb={2}>
                         {groupName}
                     </Typography>
-                    <Paper
-                        elevation={3}
-                        sx={{ p: 3, flexGrow: 1, display: "flex", flexDirection: "column", overflow: "hidden", borderRadius: 3 }}
-                    >
-                        {/* Activity Header with Buttons */}
-                        <Box sx={{ display: "flex", justifyContent: "space-between", alignItems: "center", mb: 2 }}>
-                            <Typography variant="h5" fontWeight="bold">
-                                Expenses
-                            </Typography>
+                    <Paper elevation={3} sx={{ p: 3, borderRadius: 3, flexGrow: 1 }}>
+                        <Box sx={{ display: "flex", justifyContent: "space-between", mb: 2 }}>
+                            <Typography variant="h5" fontWeight="bold">Expenses</Typography>
                             <Box sx={{ display: "flex", gap: 2 }}>
-                                <Button
-                                    variant="contained"
-                                    color="primary"
-                                    startIcon={<PaymentsIcon />}
-                                    sx={{ borderRadius: 2 }}
-                                    onClick={() => setExpenseModalOpen(true)} // Open modal
-                                >
+                                <Button variant="contained" color="primary" startIcon={<PaymentsIcon />} onClick={() => setExpenseModalOpen(true)}>
                                     Add Expense
                                 </Button>
-                                <Button
-                                    variant="contained"
-                                    color="secondary"
-                                    startIcon={<DoneAllIcon />}
-                                    sx={{ borderRadius: 2 }}
-                                >
+                                <Button variant="contained" color="secondary" startIcon={<DoneAllIcon />} onClick={() => setSettleUpModalOpen(true)}>
                                     Settle Up
                                 </Button>
                             </Box>
                         </Box>
 
-                        {/* Expenses List - Improved UI */}
-                        <List sx={{ flexGrow: 1, overflowY: "auto", maxHeight: "60vh" }}>
+                        <List sx={{ flexGrow: 1, maxHeight: "60vh", overflowY: "auto" }}>
                             {expenses.length > 0 ? (
                                 expenses.map((expense) => {
-                                    const paidByParticipant = expense.participants.find(p => p.user_id == expense.paid_by);
-                                    const paidByName = paidByParticipant ? paidByParticipant.username : "Unknown";
-                                    const displayPaidBy = expense.paid_by == userid ? "You" : paidByName;
+                                    const paidByUser = group.users.find(u => u.ID === expense.paid_by);
+                                    const participants = expense.participants || [];
+                                    const otherUser = participants.find(p => p.user_id !== userid);
+                                    const paidByName = paidByUser?.username || "Someone";
+                                    const otherName = otherUser?.username || "Unknown";
 
-                                    const userOwe = expense.participants.find(p => p.user_id == userid);
-                                    const amountOwed = userOwe ? userOwe.amount_owed.toFixed(2) : "0.00";
-
-                                    const totalOwedToPayer = expense.participants
-                                        .filter(p => p.user_id !== expense.paid_by)
-                                        .reduce((sum, p) => sum + p.amount_owed, 0)
-                                        .toFixed(2);
-
-                                    const amountYouAreOwed = expense.paid_by == userid ? (expense.amount - amountOwed).toFixed(2) : "0.00";
+                                    const userOwe = participants.find(p => p.user_id == userid);
+                                    const amountOwed = userOwe?.amount_owed?.toFixed(2) || "0.00";
+                                    const amountYouAreOwed = expense.paid_by == userid
+                                        ? (expense.amount - parseFloat(amountOwed)).toFixed(2)
+                                        : "0.00";
 
                                     let activityText;
-                                    if (expense.paid_by == userid) {
-                                        activityText = (
-                                            <Typography variant="body2" sx={{ fontSize: "1rem" }}>
-                                                You paid <b>${expense.amount}</b> for <b>{expense.title}</b>.
-                                                You are owed <b>${amountYouAreOwed}</b>.
-                                            </Typography>
-                                        );
+
+                                    if (expense.title === "SETTLE_UP_PAYMENT") {
+                                        if (expense.paid_by == userid) {
+                                            activityText = (
+                                                <Typography variant="body2" sx={{ fontSize: "1rem" }}>
+                                                    You settled up <b>${expense.amount}</b> with <b>{otherName}</b>.
+                                                </Typography>
+                                            );
+                                        } else if (otherUser?.user_id == userid) {
+                                            activityText = (
+                                                <Typography variant="body2" sx={{ fontSize: "1rem" }}>
+                                                    <b>{paidByName}</b> paid <b>${expense.amount}</b> to you.
+                                                </Typography>
+                                            );
+                                        } else {
+                                            activityText = (
+                                                <Typography variant="body2" sx={{ fontSize: "1rem" }}>
+                                                    <b>{paidByName}</b> settled up <b>${expense.amount}</b> with <b>{otherName}</b>.
+                                                </Typography>
+                                            );
+                                        }
                                     } else {
-                                        activityText = (
-                                            <Typography variant="body2" sx={{ fontSize: "1rem" }}>
-                                                <b>{displayPaidBy}</b> paid <b>${expense.amount}</b> for <b>{expense.title}</b>.
-                                                You owe <b>${amountOwed}</b>.
-                                            </Typography>
-                                        );
+                                        if (expense.paid_by == userid) {
+                                            activityText = (
+                                                <Typography variant="body2" sx={{ fontSize: "1rem" }}>
+                                                    You paid <b>${expense.amount}</b> for <b>{expense.title}</b>. You are owed <b>${amountYouAreOwed}</b>.
+                                                </Typography>
+                                            );
+                                        } else {
+                                            activityText = (
+                                                <Typography variant="body2" sx={{ fontSize: "1rem" }}>
+                                                    <b>{paidByName}</b> paid <b>${expense.amount}</b> for <b>{expense.title}</b>. You owe <b>${amountOwed}</b>.
+                                                </Typography>
+                                            );
+                                        }
                                     }
 
                                     return (
-                                        <ListItem key={expense.id} sx={{ p: 1, display: "flex", alignItems: "center", gap: 2, borderBottom: "1px solid #ddd" }}>
-                                            <AttachMoneyIcon sx={{ color: "#4CAF50" }} />
+                                        <ListItem key={expense.id} divider>
+                                            <AttachMoneyIcon sx={{ color: "#4CAF50", mr: 1 }} />
                                             <ListItemText primary={activityText} />
-                                            {expense.paid_by == userid ? (
+                                            {expense.title !== "SETTLE_UP_PAYMENT" && (
                                                 <Chip
-                                                    label={`You are owed $${amountYouAreOwed}`}
-                                                    color="success"
+                                                    label={
+                                                        expense.paid_by == userid
+                                                            ? `You are owed $${amountYouAreOwed}`
+                                                            : `You owe $${amountOwed}`
+                                                    }
+                                                    color={expense.paid_by === userid ? "success" : "error"}
                                                     variant="outlined"
-                                                    sx={{ fontSize: "0.9rem", fontWeight: "bold" }}
-                                                />
-                                            ) : (
-                                                <Chip
-                                                    label={`You owe $${amountOwed}`}
-                                                    color="error"
-                                                    variant="outlined"
-                                                    sx={{ fontSize: "0.9rem", fontWeight: "bold" }}
                                                 />
                                             )}
-                                            <Tooltip title="Delete expense" arrow>
-                                                <IconButton
-                                                    aria-label="delete"
-                                                    color="error"
-                                                    onClick={() => handleDelete(expense.id)} // or handleDelete
-                                                >
+                                            <Tooltip title="Delete expense">
+                                                <IconButton color="error" onClick={() => handleDelete(expense.id)}>
                                                     <DeleteIcon />
                                                 </IconButton>
                                             </Tooltip>
@@ -221,47 +204,27 @@ const GroupDetails = ({ groupId, groupName }) => {
                                     );
                                 })
                             ) : (
-                                <Typography variant="body2" color="textSecondary">
-                                    No recent expenses
-                                </Typography>
+                                <Typography variant="body2" color="textSecondary">No recent expenses</Typography>
                             )}
                         </List>
                     </Paper>
                 </Grid>
 
-                {/* Right Section - Members */}
                 <Grid item xs={3} sx={{ display: "flex", flexDirection: "column", height: "100%" }}>
-                    <Paper
-                        elevation={3}
-                        sx={{ p: 3, flexGrow: 1, display: "flex", flexDirection: "column", borderRadius: 3 }}
-                    >
-                        <Typography variant="h6" fontWeight="bold" mb={2}>
-                            Members
-                        </Typography>
-
-                        <List sx={{ flexGrow: 1, overflowY: "auto", maxHeight: "60vh" }}>
-                            {group?.users?.length > 0 ? (
-                                group?.users?.map((user, index) => (
-                                    <ListItem key={index} sx={{ display: "flex", alignItems: "center", p: 0.5 }}>
-                                        <PersonIcon sx={{ mr: 1, color: "gray" }} />
-                                        <ListItemText primary={user.username} />
-                                    </ListItem>
-                                ))
-                            ) : (
-                                <Typography variant="body2" color="textSecondary">
-                                    No members found
-                                </Typography>
+                    <Paper elevation={3} sx={{ p: 3, borderRadius: 3, height: "100%" }}>
+                        <Typography variant="h6" fontWeight="bold" mb={2}>Members</Typography>
+                        <List sx={{ maxHeight: "60vh", overflowY: "auto" }}>
+                            {group?.users?.length ? group.users.map((user, index) => (
+                                <ListItem key={index}>
+                                    <PersonIcon sx={{ mr: 1 }} />
+                                    <ListItemText primary={user.username} />
+                                </ListItem>
+                            )) : (
+                                <Typography variant="body2" color="textSecondary">No members found</Typography>
                             )}
                         </List>
-                        <Box sx={{ mt: "auto", pt: 2, display: "flex", justifyContent: "center" }}>
-                            <Button
-                                variant="outlined"
-                                color="primary"
-                                startIcon={<AddCircleOutlineIcon />}
-                                sx={{ borderRadius: 2, width: "100%" }}
-                                onClick={() => setAddMemberModalOpen(true)}
-
-                            >
+                        <Box mt={2}>
+                            <Button fullWidth variant="outlined" onClick={() => setAddMemberModalOpen(true)} startIcon={<AddCircleOutlineIcon />}>
                                 Add Member
                             </Button>
                         </Box>
@@ -269,7 +232,7 @@ const GroupDetails = ({ groupId, groupName }) => {
                 </Grid>
             </Grid>
 
-            {/* Add Expense Modal */}
+            {/* Modals */}
             <AddMemberModal
                 open={isAddMemberModalOpen}
                 onClose={() => setAddMemberModalOpen(false)}
@@ -278,10 +241,26 @@ const GroupDetails = ({ groupId, groupName }) => {
                 groupId={groupId}
                 onUsersAdded={getUsersOfAGroup}
             />
-
-            <AddExpenseModal open={isExpenseModalOpen} onClose={() => setExpenseModalOpen(false)} groupId={groupId} members={group?.users} currentUser={userid} fetchExpenses={fetchExpenses} />
+            <AddExpenseModal
+                open={isExpenseModalOpen}
+                onClose={() => setExpenseModalOpen(false)}
+                groupId={groupId}
+                members={group.users}
+                currentUser={userid}
+                fetchExpenses={fetchExpenses}
+            />
+            <SettleUpModal
+                open={isSettleUpModalOpen}
+                onClose={() => setSettleUpModalOpen(false)}
+                users={group.users}
+                currentUser={userid}
+                groupId={groupId}
+                fetchExpenses={fetchExpenses}
+                allowGroupSelect={false}
+            />
         </Box>
     );
 };
 
 export default GroupDetails;
+
